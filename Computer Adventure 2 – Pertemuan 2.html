@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Computer Adventure 2 – Pertemuan 2</title>
+<style>
+:root{--bg:#fdf3dc;--ink:#26204a;--card:#fffdf7;--line:#26204a;--blue:#3b82f6;--org:#f97316;--grn:#16a34a;--sun:#ffc93c;--mute:#6b6590;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1738;--ink:#fff4dc;--card:#2a2456;--line:#fff4dc;--mute:#b9b2e0}}
+:root[data-theme="dark"]{--bg:#1b1738;--ink:#fff4dc;--card:#2a2456;--line:#fff4dc;--mute:#b9b2e0}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;font-size:18px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;max-width:900px;margin:0 auto}
+header b{font-size:20px}
+#sc{background:var(--sun);color:#26204a;border-radius:99px;padding:6px 16px;font-weight:700;border:3px solid var(--line)}
+main{max-width:900px;margin:0 auto;padding:0 18px 40px}
+h1{font-size:clamp(28px,6vw,44px);margin:8px 0}
+h2{font-size:clamp(22px,4.5vw,30px);margin:10px 0}
+.sub,.intro{color:var(--mute);margin:4px 0 14px}
+button{font:inherit;color:inherit;cursor:pointer}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mb{position:relative;text-align:left;background:var(--card);border:3px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:0 5px 0 var(--line);display:grid;gap:2px}
+.mb>span{font-size:38px}.mb small{font-size:15px;color:var(--mute)}.mb em{position:absolute;right:12px;top:10px;font-style:normal;font-size:26px}
+.mb:hover{transform:translateY(-2px)}.mb:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.top{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.back{background:var(--card);border:3px solid var(--line);border-radius:12px;padding:6px 12px}
+.top span{font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
+.pc{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 5px 0 var(--line);display:grid;gap:4px;justify-items:center}
+.pc svg{width:100%;max-width:130px}
+.pc:hover{transform:translateY(-2px)}
+.pc.ok{background:#bbf7d0;color:#14532d}
+.msg{min-height:30px;font-weight:700;margin:10px 0}
+.msg.good{color:var(--grn)}.msg.bad{color:var(--org)}
+.stage{position:relative;height:340px;background:var(--card);border:3px solid var(--line);border-radius:18px;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:default}
+.tg{position:absolute;width:90px;text-align:center;font-size:58px;line-height:1.1;cursor:pointer;animation:fl 2s ease-in-out infinite}
+.tg i{display:block;font-style:normal;font-size:14px;font-weight:700;color:#fff;border-radius:99px;padding:2px 8px;margin-top:2px}
+.tg.pop{animation:pop .45s forwards;pointer-events:none}
+.tg.wig{animation:wig .35s}
+@keyframes fl{50%{transform:translateY(-8px)}}
+@keyframes pop{40%{transform:scale(1.5) rotate(10deg)}100%{transform:scale(0);opacity:0}}
+@keyframes wig{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.shake{animation:wig .35s}
+.hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700}
+.hud svg{width:56px}
+.bar{height:14px;background:var(--card);border:3px solid var(--line);border-radius:99px;width:min(220px,50vw);overflow:hidden}
+.bar div{height:100%;background:var(--grn);width:0;transition:width .3s}
+.card{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:22px;text-align:center;box-shadow:0 6px 0 var(--line)}
+.big{font-size:72px}
+.go{background:var(--sun);color:#26204a;border:3px solid var(--line);border-radius:14px;padding:10px 22px;font-weight:700;box-shadow:0 4px 0 var(--line);margin-top:10px}
+.learn{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.learn .pc{cursor:default;text-align:center}.learn p{margin:0;font-size:15px}
+.bigmouse{width:min(260px,70vw);display:block;margin:10px auto}
+.bigmouse path{cursor:pointer;transition:fill .15s}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opts button{background:var(--card);border:3px solid var(--line);border-radius:14px;padding:12px;text-align:left}
+.opts button.ok{background:#bbf7d0;color:#14532d}
+.f{display:grid;gap:12px;max-width:340px;margin:14px auto;text-align:left}
+.f input,.f select,#fl{display:block;width:100%;font:inherit;padding:10px 12px;border:3px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin-top:4px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:16px;background:var(--card)}
+#fl{width:auto;display:inline-block;margin:0}small{font-size:13px;color:var(--mute)}
+th,td{border:2px solid var(--line);padding:6px 8px;text-align:left}
+textarea{width:100%;height:140px;font:14px monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);border-radius:12px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:18px;z-index:9}
+.ov .card{max-width:360px;width:100%}.bt{display:flex;gap:10px;justify-content:center;margin-top:10px}.bt .go{margin-top:0}
+.ov input{font:inherit;width:100%;padding:10px 12px;border:3px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.en{display:block}.id{display:block;font-size:.72em;font-weight:400;color:var(--mute);margin-top:2px}
+body.noid .id{display:none}.tg i .id{color:#fff;font-size:11px;margin:0}
+.blank{display:inline-block;min-width:90px;border-bottom:4px solid var(--blue);text-align:center;color:var(--blue);font-weight:700;padding:0 6px}.blank.f{border-bottom-color:var(--grn);color:var(--grn)}
+.sent{font-size:clamp(20px,4.2vw,30px);line-height:1.6;margin:10px 0}.sent .id{line-height:1.5}
+.mb.wide{width:100%;margin-top:14px}#lg{padding:4px 10px;margin-right:8px}
+.pc{position:relative}.pc.sel{background:#bbf7d0;color:#14532d}.pc.sel::after{content:"✓";position:absolute;top:4px;right:10px;font-size:28px;color:#16a34a}
+.opts button.dim{opacity:.4;text-decoration:line-through;cursor:not-allowed}.opts.lk{pointer-events:none}.opts.lk button:not(.dim){opacity:.6}
+.go:disabled{opacity:.5;cursor:not-allowed}
+.desk{position:relative;height:340px;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#60a5fa,#a78bfa);user-select:none;-webkit-user-select:none;cursor:default}
+.ic{position:absolute;width:104px;text-align:center;padding:6px;border:2px solid transparent;border-radius:8px;color:#fff;font-size:14px;text-shadow:0 1px 2px #0008}
+.ic svg{width:60px;display:block;margin:0 auto 4px}.ic.sel{background:rgba(255,255,255,.3);border-color:#fff}
+.win{position:absolute;left:150px;right:12px;top:12px;background:#fff;color:#111;border:2px solid #333;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:3}
+.win .tb{display:flex;justify-content:space-between;align-items:center;background:#e5e7eb;padding:4px 8px;font-size:14px;font-weight:700}
+.win .tb button{background:#ef4444;color:#fff;border:0;border-radius:6px;font-weight:700;padding:2px 10px}
+.win .bd{padding:8px;height:210px;overflow:hidden}
+.sh{border-collapse:collapse;width:100%;font-size:14px;background:#fff;color:#111}.sh th,.sh td{border:1px solid #d0d7de;padding:3px 8px;text-align:left;font-weight:400}.sh th{background:#f1f3f4;color:#555}
+.cm{position:absolute;z-index:5;background:#fff;color:#111;border:1px solid #888;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.35);padding:4px 0;min-width:160px;font-size:15px}
+.cm div{padding:4px 16px}.cm div:hover{background:#dbeafe}.cm hr{border:0;border-top:1px solid #ddd;margin:3px 0}
+.ck-list{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:6px}.ck-list li{background:var(--card);border:3px solid var(--line);border-radius:12px;padding:6px 12px}.ck-list li.dn{background:#bbf7d0;color:#14532d}
+.bk{position:absolute;top:70px;width:100px;height:100px;font-size:64px;display:grid;place-items:center;border:4px dashed var(--line);border-radius:18px}
+.bl{position:absolute;top:84px;width:80px;height:80px;font-size:56px;display:grid;place-items:center;z-index:2}
+.dg{cursor:grab;user-select:none;-webkit-user-select:none}.drg{cursor:grabbing;z-index:9;position:relative;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+.bl.drg{position:absolute}.sel{outline:4px solid var(--blue);border-radius:14px}
+.tgt{border:3px dashed var(--line);border-radius:14px;padding:10px;text-align:center;min-height:120px;display:grid;align-content:center;gap:6px;background:var(--card)}
+.tgt.over,.bk.over{background:#bbf7d0;border-style:solid}.tgt .pc{padding:4px;box-shadow:none;border:0}
+.tgt .en::first-letter,.tgt .id::first-letter{text-transform:uppercase}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.slot{min-width:110px;padding:10px;border:3px dashed var(--line);border-radius:14px;text-align:center;font-weight:700}
+.slot.f{background:#bbf7d0;color:#14532d;border-style:solid}.slot.a{border-color:var(--blue)}.arw{font-size:26px}
+.tx{font-size:clamp(28px,6vw,44px);font-family:"Courier New",monospace;background:var(--card);border:3px solid var(--line);border-radius:14px;padding:18px;text-align:center;min-height:90px;margin:10px 0}
+.tx .gr{color:var(--mute)}.cr{display:inline-block;width:0;overflow:hidden;height:1.15em;vertical-align:text-bottom;border-left:3px solid var(--org);margin:0 -1.5px;color:transparent;animation:bk 1s steps(1) infinite}.ch{display:inline-block;min-width:.55em;cursor:text}.ch:hover{background:#dbeafe;border-radius:4px}.tx.fx .ch{cursor:default}.tx.fx .ch:hover{background:none}@keyframes bk{50%{opacity:0}}
+.er{background:#fecaca;color:#991b1b;border-radius:4px}.ok2{background:#bbf7d0;color:#14532d;border-radius:4px}
+.kcap{display:inline-block;padding:12px 18px;border:3px solid var(--line);border-radius:10px;background:#e2e8f0;color:#26204a;font-weight:700;box-shadow:0 4px 0 var(--line);margin:4px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:12px 0}
+:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header><b>⌨️ Computer Adventure 2</b><span><button id="lg" class="back" aria-pressed="true" title="Bahasa Indonesia">ID ✓</button><span id="sc">⭐ 0</span></span></header>
+<main id="app"></main>
+<script>
+
+const A=document.getElementById('app'),SC=document.getElementById('sc');
+let stars=0,done={},ms={},cur=0,flt='',me=null,et=null,dropOut=0,fb=0;
+const MM=[9,5,6,9,8,11],MN=['M1 Drag & Match','M2 Kerja Sama','M3 Buka/Tutup','M4 Spacebar','M5 Backspace','M6 Delete & Fix It'],KLS=['3 Aster','3 Gardenia','3 Gloxinia','3 Lavender'],MAX=48,KODE='guru123',KEY='pm2_results';let mem=[];
+/* Alamat Google Apps Script (Web app, berakhiran /exec). Kosong = pengiriman ke Google Sheet mati. */
+const SYNC='https://script.google.com/macros/s/AKfycbxlOaom3DHLCKEg9h_enfOiVeEi0oBqD9rrojtv7H-Vw1x1CRXlcvO20GWacvDeLaE/exec';
+const TAB='Pertemuan 2'; /* nama tab di Google Sheet */
+const $=h=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild};
+const bi=(en,id)=>`<span class="en">${en}</span>${id?`<span class="id">${id}</span>`:''}`;
+const rec=()=>(ms[cur]=ms[cur]||{s:0,x:0});
+const recalc=()=>{stars=0;for(const k in ms)stars+=ms[k].s;SC.textContent='⭐ '+stars};
+const add=n=>{rec().s+=n||1;recalc()};
+function snd(f,d){try{const c=snd.c||(snd.c=new(window.AudioContext||window.webkitAudioContext)());const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;g.gain.value=.12;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+(d||.12))}catch(e){}}
+const ok=()=>{snd(660);setTimeout(()=>snd(880),90)},no=()=>{rec().x++;snd(180,.2)};
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const msg=(en,id,g)=>{const m=A.querySelector('#msg');if(m){m.innerHTML=bi(en,id);m.className='msg '+(g?'good':'bad')}};
+const shake=el=>{el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
+const stamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes())};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const goBack=()=>me?home():start();
+const hdr=t=>`<div class="top"><button class="back" onclick="goBack()">⬅ Menu</button><span>${t}</span></div>`;
+const setLang=on=>{document.body.classList.toggle('noid',!on);const b=document.getElementById('lg');b.textContent=on?'ID ✓':'ID ✕';b.setAttribute('aria-pressed',on)};
+document.getElementById('lg').onclick=()=>setLang(document.body.classList.contains('noid'));
+
+const e1=r=>r.e&&r.e.done?`The ${r.e.k} key is used to ${r.e.kf}.`:'';
+const e2=r=>r.e&&r.e.done?`One computer part that helps me complete a task is ${r.e.p} because ${r.e.pf}.`:'';
+const HD=['Nama','Kelas'].concat(...MN.map(n=>[n+' Bintang',n+' Salah']),['Misi Selesai','Total Bintang','Maks','Exit Ticket 1','Exit Ticket 2','Exit Ticket Salah Pilih','Exit Ticket Jawaban Ditunjukkan','Lepas Di Luar Target','Pakai Klik-Klik','Waktu']);
+const rowOf=r=>[r.nama,r.kelas].concat(...MM.map((_,i)=>{const m=(r.m||[])[i];return m&&(m.d||m.s||m.x)?[m.s,m.x]:['','']}),[r.misi||0,r.bintang,MAX,e1(r),e2(r),r.e&&r.e.done?r.e.x:'',r.e&&r.e.h?'Ya':'',r.o||0,r.f?'Ya':'',r.waktu]);
+
+/* kirim ke Google Sheet (antrean; dicoba ulang otomatis) */
+const QK='pm2_queue';let qmem={},sending=0;
+const qload=()=>{try{return JSON.parse(localStorage.getItem(QK)||'{}')}catch(e){return qmem}};
+const qsave=q=>{qmem=q;try{localStorage.setItem(QK,JSON.stringify(q))}catch(e){}};
+async function flush(){
+ if(!SYNC||sending)return;sending=1;
+ try{
+  const q=qload();
+  for(const id of Object.keys(q)){
+   await fetch(SYNC,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tab:TAB,head:['ID'].concat(HD),row:q[id]})});
+   const q2=qload();if(JSON.stringify(q2[id])===JSON.stringify(q[id]))delete q2[id];qsave(q2);
+  }
+ }catch(e){}
+ sending=0}
+function queue(r){if(!SYNC)return;const q=qload();q[r.id]=[r.id].concat(rowOf(r));qsave(q);flush()}
+setInterval(flush,30000);window.addEventListener('online',flush);
+
+/* penyimpanan */
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return mem}};
+const store=a=>{mem=a;try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}};
+function save(){if(!me)return;const a=load(),r={id:me.id,nama:me.nama,kelas:me.kelas,bintang:stars,misi:Object.keys(done).length,m:[0,1,2,3,4,5].map(i=>({d:done[i]?1:0,s:(ms[i]||{}).s||0,x:(ms[i]||{}).x||0})),e:et,o:dropOut,f:fb,waktu:stamp()};const j=a.findIndex(x=>x.id===me.id);j<0?a.push(r):a[j]=r;store(a);queue(r)}
+
+/* awal */
+function start(){
+ done={};ms={};me=null;et=null;dropOut=0;fb=0;window.onkeydown=null;recalc();setLang(false);
+ A.innerHTML=`<div class="card"><div class="big">👋</div><h1>${bi('Hello! What is your name?','Halo! Siapa namamu?')}</h1><div class="f"><label>${bi('Name','Nama')}<input id="nm" maxlength="30" autocomplete="off"></label><label>${bi('Class','Kelas')}<select id="kl"><option value="">Choose / Pilih</option>${KLS.map(k=>`<option>${k}</option>`).join('')}</select></label></div><p id="msg" class="msg"></p><button class="go" id="go">${bi("Let's play!",'Mulai bermain')}</button></div><p style="text-align:center;margin-top:18px"><button class="back" id="gr">Untuk guru</button></p>`;
+ const go=()=>{const nm=A.querySelector('#nm').value.trim(),kl=A.querySelector('#kl').value;if(!nm){msg('Please write your name.','Tulis namamu dulu ya.');return}if(!kl){msg('Please choose your class.','Pilih kelasmu dulu ya.');return}me={id:'S'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),nama:nm,kelas:kl};save();home()};
+ A.querySelector('#go').onclick=go;
+ A.querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
+ A.querySelector('#gr').onclick=teacher;
+}
+function dlg(text,yes,label){
+ const o=$(`<div class="ov"><div class="card"><p>${text}</p><div class="bt"></div></div></div>`);
+ const y=$(`<button class="go">${label||'Ya'}</button>`),n=$('<button class="back">Batal</button>');
+ y.onclick=()=>{o.remove();yes()};n.onclick=()=>o.remove();
+ o.querySelector('.bt').append(y,n);document.body.append(o)}
+function gantiSiswa(){stars?dlg('Ganti siswa? Skor ini sudah tersimpan.',start,'Ya, ganti'):start()}
+function gate(){
+ const o=$('<div class="ov"><div class="card"><p>Masukkan kode guru</p><input type="password" autocomplete="off"><p class="msg bad"></p><div class="bt"></div></div></div>');
+ const i=o.querySelector('input'),e=o.querySelector('.msg');
+ const go=()=>{if(i.value===KODE){o.remove();teacher(true)}else{e.textContent='Kode salah.';i.select()}};
+ const y=$('<button class="go">Masuk</button>'),n=$('<button class="back">Batal</button>');
+ y.onclick=go;n.onclick=()=>o.remove();i.onkeydown=ev=>{if(ev.key==='Enter')go()};
+ o.querySelector('.bt').append(y,n);document.body.append(o);i.focus()}
+
+/* guru */
+function teacher(skip){
+ if(skip!==true)return gate();
+ const all=load(),a=all.filter(r=>!flt||r.kelas===flt);
+ const mi=(r,i)=>(r.m||[])[i];
+ const cell=(r,i)=>{const m=mi(r,i);return m&&m.d?`${m.s}/${MM[i]}<br><small>salah ${m.x}</small>`:m&&(m.s||m.x)?`${m.s}/${MM[i]}<br><small>salah ${m.x} · belum selesai</small>`:'–'};
+ const avg=i=>{const v=a.map(r=>mi(r,i)).filter(m=>m&&m.d);return v.length?(v.reduce((t,m)=>t+m.s,0)/v.length).toFixed(1)+'/'+MM[i]:'–'};
+ const rows=a.map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td>${MM.map((_,i)=>`<td>${cell(r,i)}</td>`).join('')}<td><b>${r.bintang}/${MAX}</b></td><td>${r.o||0}</td><td>${r.f?'Ya':'–'}</td></tr>`).join('')||'<tr><td colspan="11">Belum ada hasil.</td></tr>';
+ const erows=a.map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td><td>${esc(e1(r))||'–'}</td><td>${esc(e2(r))||'–'}</td><td>${r.e&&r.e.done?r.e.x+(r.e.h?' (jawaban ditunjukkan)':''):'–'}</td></tr>`).join('')||'<tr><td colspan="5">Belum ada hasil.</td></tr>';
+ const sel=`<select id="fl"><option value="">Semua kelas</option>${KLS.map(k=>`<option${k===flt?' selected':''}>${k}</option>`).join('')}</select>`;
+ const syTxt=SYNC?'Google Sheet: aktif. Menunggu terkirim: '+Object.keys(qload()).length+'.':'Google Sheet: belum diatur. Hasil hanya tersimpan di komputer ini.';
+ A.innerHTML=`${hdr('Hasil Pertemuan 2')}<p>Kelas: ${sel}</p><div class="tw"><table><tr><th>Nama</th><th>Kelas</th>${MN.map(n=>`<th>${n}</th>`).join('')}<th>Total</th><th>Lepas di luar target</th><th>Pakai klik-klik</th></tr>${rows}<tr><td colspan="2"><i>Rata-rata</i></td>${MM.map((_,i)=>`<td><i>${avg(i)}</i></td>`).join('')}<td></td><td></td><td></td></tr></table></div><p class="intro">Angka = bintang didapat / maksimum. "salah" = jumlah pilihan atau tombol yang belum tepat. "belum selesai" = misi dihentikan di tengah jalan. "Lepas di luar target" = berapa kali benda diseret lalu dilepas bukan di atas tujuan (tanda anak masih sulit menahan tombol mouse). "Pakai klik-klik" = anak memakai cadangan klik-lalu-klik.</p><h2>Exit Ticket &amp; Refleksi</h2><div class="tw"><table><tr><th>Nama</th><th>Kelas</th><th>Kalimat 1</th><th>Kalimat 2</th><th>Salah pilih</th></tr>${erows}</table></div><p class="intro">${syTxt}</p><p id="msg" class="msg"></p><button class="go" id="dl">Unduh CSV</button> <button class="go" id="sy"${SYNC?'':' disabled'}>Kirim ulang ke Google Sheet</button> <button class="go" id="cl">Hapus semua</button><div id="ta"></div>`;
+ A.querySelector('#sy').onclick=async()=>{await flush();teacher(true)};
+ A.querySelector('#fl').onchange=e=>{flt=e.target.value;teacher(true)};
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ const hd=HD,data=a.map(rowOf);
+ const csv='\uFEFF'+[hd].concat(data).map(r=>r.map(q).join(',')).join('\r\n');
+ const tsv=[hd].concat(data).map(r=>r.map(v=>String(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
+ const showTxt=note=>{A.querySelector('#ta').innerHTML='<p>'+note+'</p><textarea readonly></textarea>';const t=A.querySelector('textarea');t.value=tsv;t.select()};
+ A.querySelector('#dl').onclick=async()=>{
+  const d=window.claude?await window.claude.use('downloads'):null;
+  if(d){try{await d.save({filename:'hasil-pertemuan-2.csv',data:csv});msg('Tersimpan.','',1);return}catch(e){if(e&&e.code==='declined')return}}
+  try{const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const l=document.createElement('a');l.href=u;l.download='hasil-pertemuan-2.csv';document.body.append(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);msg('File hasil-pertemuan-2.csv diunduh. Cek folder Downloads.','',1)}catch(e){}
+  showTxt('Kalau file belum terunduh, salin teks ini lalu tempel ke Google Sheets. Kolom akan terbagi otomatis:')};
+ A.querySelector('#cl').onclick=()=>{dlg('Hapus semua hasil di komputer ini?',()=>{store([]);teacher(true)},'Ya, hapus')};
+}
+
+/* gambar */
+let kb='';for(let r=0;r<3;r++)for(let c=0;c<8;c++)kb+=`<rect x="${12+c*9.5}" y="${34+r*10}" width="7.5" height="7.5" rx="1.5" fill="#94a3b8"/>`;
+function mouse(hl,cls){const f=s=>hl===s?'#fde047':'#f1f5f9';
+return `<svg viewBox="0 0 100 100" class="${cls||''}"><rect x="28" y="6" width="44" height="88" rx="22" fill="#f1f5f9" stroke="#475569" stroke-width="3"/><path data-s="L" d="M29.5 40V28A20.5 20.5 0 0 1 50 7.5V40Z" fill="${f('L')}" stroke="#475569" stroke-width="2.5"/><path data-s="R" d="M50 7.5A20.5 20.5 0 0 1 70.5 28V40H50Z" fill="${f('R')}" stroke="#475569" stroke-width="2.5"/><rect x="47" y="16" width="6" height="14" rx="3" fill="#475569"/></svg>`}
+const P={
+monitor:{n:'Monitor',f:['The monitor shows pictures and words. It is like the eyes of the computer!','Monitor menampilkan gambar dan tulisan. Seperti mata komputer!'],svg:'<svg viewBox="0 0 100 100"><rect x="8" y="10" width="84" height="58" rx="6" fill="#334155"/><rect x="14" y="16" width="72" height="46" rx="3" fill="#7dd3fc"/><rect x="44" y="68" width="12" height="14" fill="#64748b"/><rect x="28" y="82" width="44" height="7" rx="3" fill="#64748b"/></svg>'},
+cpu:{n:'CPU',f:['The CPU is the brain of the computer. It is where the computer thinks!','CPU adalah otak komputer. Di sinilah komputer berpikir!'],svg:'<svg viewBox="0 0 100 100"><rect x="26" y="6" width="48" height="88" rx="5" fill="#cbd5e1" stroke="#475569" stroke-width="3"/><rect x="34" y="16" width="32" height="5" fill="#64748b"/><rect x="34" y="26" width="32" height="5" fill="#64748b"/><circle cx="50" cy="74" r="7" fill="#22c55e"/></svg>'},
+keyboard:{n:'Keyboard',f:['The keyboard is used to type letters and numbers.','Keyboard dipakai untuk mengetik huruf dan angka.'],svg:`<svg viewBox="0 0 100 100"><rect x="5" y="26" width="90" height="48" rx="6" fill="#e2e8f0" stroke="#475569" stroke-width="3"/>${kb}<rect x="26" y="64" width="48" height="6" rx="2" fill="#94a3b8"/></svg>`},
+mouse:{n:'Mouse',f:['The mouse moves the pointer on the screen and is used to click.','Mouse menggerakkan panah di layar dan dipakai untuk mengklik.'],svg:mouse('')}};
+
+/* utilitas drag & drop */
+const at=(e,ts)=>ts.find(t=>{const r=t.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom});
+function dnd(items,targets,drop){
+ let sel=null;
+ const pick=x=>{sel=x;items.forEach(i=>i.classList.toggle('sel',i===x))};
+ items.forEach(it=>{
+  let on=0,sx=0,sy=0;
+  it.classList.add('dg');it.style.touchAction='none';
+  it.onpointerdown=e=>{if(e.button!==0||it.dataset.lock)return;e.preventDefault();on=1;sx=e.clientX;sy=e.clientY;it.dataset.mv='';it.setPointerCapture(e.pointerId);it.classList.add('drg');it.style.transition='none'};
+  it.onpointermove=e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>6)it.dataset.mv='1';it.style.transform=`translate(${dx}px,${dy}px)`;const t=at(e,targets);targets.forEach(x=>x.classList.toggle('over',x===t))};
+  const end=e=>{if(!on)return;on=0;it.classList.remove('drg');const t=at(e,targets);targets.forEach(x=>x.classList.remove('over'));it.style.transition='transform .25s';it.style.transform='';if(it.dataset.mv)drop(it,t||null)};
+  it.onpointerup=end;it.onpointercancel=end;
+  it.onclick=()=>{if(fb&&!it.dataset.lock&&!it.dataset.mv)pick(it)};
+ });
+ targets.forEach(t=>t.onclick=()=>{if(fb&&sel){const i=sel;pick(null);drop(i,t)}});
+}
+function showFb(){const w=A.querySelector('#fbw');if(!w||fb)return;w.innerHTML=`<button class="go" id="fbb">${bi('Try click-and-click','Coba klik-klik')}</button>`;A.querySelector('#fbb').onclick=()=>{fb=1;w.innerHTML='';msg('Click the item, then click where it goes.','Klik benda itu, lalu klik tempat tujuannya.',1)}}
+const F={monitor:['show pictures and words','menampilkan gambar dan tulisan'],cpu:['help the computer think','membantu komputer berpikir'],keyboard:['type letters and numbers','mengetik huruf dan angka'],mouse:['move the pointer and click','menggerakkan panah dan mengklik']};
+const pl=k=>k==='cpu'?'CPU':k;
+const BR={monitor:['Monitor: it shows information and pictures.','Monitor: ia menampilkan informasi dan gambar.'],cpu:['CPU: it processes information and instructions.','CPU: ia memproses informasi dan instruksi.'],keyboard:['Keyboard: it helps me type and enter information.','Keyboard: ia membantuku mengetik dan memasukkan informasi.'],mouse:['Mouse: it helps me point and select.','Mouse: ia membantuku menunjuk dan memilih.']};
+
+/* menu */
+function home(){
+ if(!me)return start();
+ window.onkeydown=null;save();
+ const TT=['Match Parts & Functions','Parts Work Together','Open & Close a Program','Spacebar','Backspace','Delete & Fix It'];
+ const M=[['✋',m1],['🤝',m2],['🪟',m3],['⌨️',m4],['⌫',m5],['🛠️',m6]];
+ A.innerHTML=`<h1>${bi('Hello, '+esc(me.nama)+'!','Halo, '+esc(me.nama)+'!')}</h1><p class="sub">${bi('Choose a mission. Start from Mission 1 to 6.','Pilih satu misi. Kerjakan dari Misi 1 sampai 6.')}</p><div class="menu"></div><button class="mb wide" id="xt"><span>📝</span><b>Exit Ticket &amp; Reflection</b>${et?'<em>✅</em>':''}</button><p style="text-align:center;margin-top:18px"><button class="back" onclick="gantiSiswa()">Ganti siswa</button> <button class="back" onclick="teacher()">Untuk guru</button></p>`;
+ const m=A.querySelector('.menu');
+ M.forEach((x,i)=>{const b=$(`<button class="mb"><span>${x[0]}</span><b>Mission ${i+1}</b><small>${TT[i]}</small>${done[i]?'<em>✅</em>':''}</button>`);b.onclick=()=>{cur=i;ms[i]={s:0,x:0};recalc();x[1](i)};m.append(b)});
+ A.querySelector('#xt').onclick=exitTicket;
+ if(Object.keys(done).length>=6)m.before($(`<div class="card" style="margin-bottom:14px"><div class="big">🏆</div><h2>${bi('You are a Computer Pro! ⭐ '+stars+'/'+MAX,'Kamu Jagoan Komputer!')}</h2></div>`));
+}
+function finish(i,text){done[i]=1;add(2);ok();save();window.onkeydown=null;
+ const all=Object.keys(done).length>=6;
+ A.innerHTML=`<div class="card"><div class="big">${all?'🏆':'🎉'}</div><h2>${all?bi('You are a Computer Pro, '+esc(me.nama)+'!','Kamu Jagoan Komputer, '+esc(me.nama)+'!'):bi('Great job!','Hebat!')}</h2><p>${text}</p>${all?`<p><b>${bi('Final score: ⭐ '+stars+' / '+MAX,'Skor akhir')}</b></p>`:''}<button class="go" onclick="home()">${bi('Back to menu','Kembali ke menu')}</button></div>`}
+
+/* Misi 1: drag & drop */
+function m1(i){
+ const R=[[16,52],[8,64],[4,74]];let r=0,miss3=0;
+ const round=()=>{
+  if(r>=3)return partB(i);
+  const[bl,kl]=R[r];
+  A.innerHTML=`${hdr('Mission 1 · Learn to Drag ('+(r+1)+'/3)')}<h2>${bi('Drag the ball to the basket.','Seret bola ke keranjang.')}</h2><p class="intro">${bi('Press and HOLD the left button. Move the mouse. Let go over the basket.','Tekan dan TAHAN tombol kiri. Gerakkan mouse. Lepaskan di atas keranjang.')}</p><div class="hud"><span>${mouse('L')}</span></div><div class="stage"><div class="bk" id="bk" style="left:${kl}%">🧺</div><div class="bl" id="bl" style="left:${bl}%">⚽</div></div><p id="msg" class="msg"></p><p id="fbw"></p>`;
+  const ball=A.querySelector('#bl'),bk=A.querySelector('#bk');
+  A.querySelector('.stage').oncontextmenu=e=>e.preventDefault();
+  if(miss3>=3)showFb();
+  dnd([ball],[bk],(it,t)=>{
+   if(t===bk){ok();add();it.dataset.lock=1;it.remove();bk.textContent='✅';msg('You did it!','Kamu berhasil!',1);setTimeout(()=>{r++;miss3=0;round()},1300)}
+   else{dropOut++;miss3++;snd(180,.2);msg('Keep holding until you reach the basket. Then let go!','Tetap tahan sampai di keranjang. Baru lepaskan!');if(miss3>=3)showFb()}
+  })};
+ round()}
+function partB(i){
+ const ks=shuffle(Object.keys(P)),fs=shuffle(Object.keys(P)),wrong={};let placed=0,miss=0;
+ A.innerHTML=`${hdr('Mission 1 · Match')}<h2>${bi('Drag each part to what it does.','Seret setiap bagian ke fungsinya.')}</h2><p class="intro">${bi('Hold the left button, move, and let go on the right box.','Tahan tombol kiri, gerakkan, lalu lepaskan di kotak yang tepat.')}</p><div class="grid" id="its"></div><div class="grid" id="bx" style="margin-top:14px"></div><p id="msg" class="msg"></p><p id="fbw"></p>`;
+ const its=A.querySelector('#its'),bx=A.querySelector('#bx');
+ ks.forEach(k=>its.append($(`<div class="pc" data-k="${k}">${P[k].svg}<b>${P[k].n}</b></div>`)));
+ fs.forEach(k=>bx.append($(`<div class="tgt" data-k="${k}">${bi(F[k][0],F[k][1])}</div>`)));
+ const items=[...its.children],targets=[...bx.children];
+ const place=(it,t,self)=>{const b=BR[it.dataset.k];if(self){ok();add();msg('Correct! '+b[0],'Benar! '+b[1],1)}else msg('This is where it goes. '+b[0],'Ini tempat yang benar. '+b[1],1);
+  it.dataset.lock=1;it.classList.remove('sel');t.append(it);t.classList.add('full');
+  if(++placed>=4)setTimeout(()=>finish(i,bi('You can drag and drop, and you know what each part does!','Kamu bisa menyeret dan menjatuhkan, dan tahu fungsi tiap bagian!')),1300)};
+ dnd(items,targets,(it,t)=>{
+  const k=it.dataset.k;
+  if(!t){dropOut++;miss++;snd(180,.2);msg('Let go on top of a box.','Lepaskan di atas salah satu kotak.');if(miss>=3)showFb();return}
+  if(t.classList.contains('full')){msg('That box is full. Try another box.','Kotak itu sudah terisi. Coba kotak lain.');return}
+  if(t.dataset.k===k)place(it,t,true);
+  else{no();wrong[k]=(wrong[k]||0)+1;shake(it);
+   if(wrong[k]>=2){place(it,targets.find(x=>x.dataset.k===k),false)}
+   else msg('Not quite. Read the box again and try again.','Belum tepat. Baca kotaknya lagi, lalu coba lagi.')}
+ });
+ if(fb)msg('Click-and-click is on: click a part, then click its box.','Klik-klik aktif: klik bagian, lalu klik kotaknya.',1)}
+
+/* Misi 2: kerja sama */
+function m2(i){
+ const TK=[['Type your name','Ketik namamu','keyboard'],['Open a picture','Buka sebuah gambar','mouse'],['Write the word "cat"','Tulis kata "cat"','keyboard']];
+ const SL=[['Which part do I use to do this task?','Bagian mana yang kupakai untuk tugas ini?'],['Which part thinks and works on it?','Bagian mana yang berpikir dan mengolahnya?'],['Which part shows me the result?','Bagian mana yang menunjukkan hasilnya?']];
+ let t=0;
+ const task=()=>{
+  if(t>=TK.length)return finish(i,bi('You can explain how the parts work together!','Kamu bisa menjelaskan kerja sama bagian-bagian komputer!'));
+  const T=TK[t],ans=[T[2],'cpu','monitor'],got=[];let s=0;
+  const draw=()=>{
+   A.innerHTML=`${hdr('Mission 2 · Work Together ('+(t+1)+'/3)')}<h2>${bi('Task: '+T[0],'Tugas: '+T[1])}</h2><div class="flow">${[0,1,2].map(j=>`<div class="slot ${j<s?'f':j===s?'a':''}">${j<s?P[got[j]].n:'?'}</div>${j<2?'<span class="arw">➜</span>':''}`).join('')}</div>${s<3?`<h2>${bi(SL[s][0],SL[s][1])}</h2><div class="grid"></div>`:''}<p id="msg" class="msg"></p>`;
+   if(s>=3)return;
+   const g=A.querySelector('.grid');
+   Object.keys(P).forEach(k=>{const c=$(`<button class="pc">${P[k].svg}<b>${P[k].n}</b></button>`);
+    c.onclick=()=>{
+     if(k===ans[s]){ok();got.push(k);s++;
+      if(s>=3){add();draw();msg('Great! The '+P[got[0]].n+', the CPU and the monitor work together!','Hebat! '+P[got[0]].n+', CPU, dan monitor bekerja sama!',1);setTimeout(()=>{t++;task()},3000)}
+      else draw()}
+     else{no();shake(c);msg(s===0?'Think: do I type or do I click?':'Not quite. Try again!',s===0?'Pikirkan: aku mengetik atau mengklik?':'Belum tepat. Coba lagi!')}};
+    g.append(c)})};
+  draw()};
+ task()}
+
+/* Misi 5: buka dan tutup program */
+function m3(i){
+ const S=[['Double-click Notes to open it.','Double click Notes untuk membukanya.','open','notes'],['Click the ✕ button to close it.','Klik tombol ✕ untuk menutupnya.','close','notes'],['Double-click Paint to open it.','Double click Paint untuk membukanya.','open','paint'],['Click the ✕ button to close it.','Klik tombol ✕ untuk menutupnya.','close','paint']];
+ let st=0,tm;
+ const IC={notes:{n:'Notes',svg:'<svg viewBox="0 0 64 64"><rect x="12" y="6" width="40" height="52" rx="4" fill="#fde047"/><path d="M18 20H46M18 29H46M18 38H38" stroke="#a16207" stroke-width="3"/></svg>',body:'<div style="font:16px monospace;line-height:1.8">My notes<br>• Computer parts<br>• Mouse<br>• Keyboard</div>'},
+ paint:{n:'Paint',svg:'<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="26" fill="#fff" stroke="#475569" stroke-width="3"/><circle cx="22" cy="24" r="5" fill="#ef4444"/><circle cx="36" cy="20" r="5" fill="#3b82f6"/><circle cx="44" cy="34" r="5" fill="#22c55e"/><circle cx="28" cy="42" r="5" fill="#f97316"/></svg>',body:'<svg viewBox="0 0 200 130" width="100%" height="100%"><rect width="200" height="130" fill="#fff"/><circle cx="60" cy="60" r="30" fill="#ef4444"/><rect x="100" y="30" width="60" height="60" fill="#3b82f6"/><path d="M30 120Q100 80 170 120" stroke="#22c55e" stroke-width="8" fill="none"/></svg>'}};
+ A.innerHTML=`${hdr('Mission 3 · Open & Close')}<p class="intro">${bi('Follow the steps. Your teacher will help you do this on the real computer too.','Ikuti langkahnya. Gurumu akan membantumu mencoba ini di komputer sungguhan juga.')}</p><ul class="ck-list" id="ck"></ul><div class="desk" id="dk"></div><p id="msg" class="msg"></p>`;
+ const dk=A.querySelector('#dk');
+ const ck=()=>{A.querySelector('#ck').innerHTML=S.map((t,j)=>`<li class="${j<st?'dn':''}">${j<st?'✅':'⬜'} ${bi(t[0]+(t[2]==='open'?'':''),t[1])}</li>`).join('')};
+ const pick=ic=>{dk.querySelectorAll('.ic').forEach(x=>x.classList.remove('sel'));if(ic)ic.classList.add('sel')};
+ const adv=()=>{ok();add();st++;ck();if(st>=S.length)setTimeout(()=>finish(i,bi('You can open and close a program! Now try it on the real computer with your teacher.','Kamu bisa membuka dan menutup program! Sekarang coba di komputer sungguhan bersama gurumu.')),1200)};
+ const openW=k=>{const o=dk.querySelector('.win');if(o)o.remove();
+  const w=$(`<div class="win"><div class="tb"><span>${IC[k].n}</span><button aria-label="Close">✕</button></div><div class="bd">${IC[k].body}</div></div>`);
+  w.querySelector('button').onclick=()=>{w.remove();const s=S[st];if(s&&s[2]==='close'&&s[3]===k){msg('Closed! 👍','Tertutup! 👍',1);adv()}};
+  w.onclick=e=>e.stopPropagation();w.oncontextmenu=e=>{e.preventDefault();e.stopPropagation()};
+  dk.append(w)};
+ const mk=(k,top)=>{const ic=$(`<div class="ic" style="left:20px;top:${top}px">${IC[k].svg}<span>${IC[k].n}</span></div>`);
+  ic.onclick=e=>{e.stopPropagation();pick(ic);clearTimeout(tm);tm=setTimeout(()=>msg('The file is selected. Now double-click to open it!','File terpilih. Sekarang double click untuk membukanya!',1),380)};
+  ic.ondblclick=e=>{e.stopPropagation();clearTimeout(tm);pick(ic);const s=S[st];if(!s)return;
+   if(s[2]==='open'&&s[3]===k){openW(k);msg('It opened! 🎉','Terbuka! 🎉',1);adv()}
+   else if(s[2]==='open'){no();msg('Open '+IC[s[3]].n+' now.','Sekarang buka '+IC[s[3]].n+'.')}
+   else msg('First close the window with the ✕ button.','Tutup dulu jendelanya dengan tombol ✕.')};
+  ic.oncontextmenu=e=>{e.preventDefault();e.stopPropagation()};
+  dk.append(ic)};
+ dk.onclick=()=>pick(null);dk.oncontextmenu=e=>e.preventDefault();
+ mk('notes',20);mk('paint',130);ck()}
+
+/* editor teks mini */
+const erase=(w,p,key)=>key==='Backspace'?(p>0?[w.slice(0,p-1)+w.slice(p),p-1]:null):(p<w.length?[w.slice(0,p)+w.slice(p+1),p]:null);
+const spOk=(s,need)=>{let c=0;const seen=[];for(const ch of s){if(ch===' ')seen.push(c);else c++}return new Set(seen).size===seen.length&&seen.every(k=>need.includes(k))};
+const edView=(tx,w,p,x)=>{tx.innerHTML=[...w].map((c,k)=>`${k===p?'<b class="cr">|</b>':''}<span class="ch${k===x?' er':''}" data-i="${k}">${c===' '?'&nbsp;':c}</span>`).join('')+(p>=w.length?'<b class="cr">|</b>':'')};
+const edClick=(tx,set)=>{tx.onclick=e=>{const c=e.target.closest('.ch');if(!c)return;const i=+c.dataset.i,r=c.getBoundingClientRect();set(e.clientX<r.left+r.width/2?i:i+1)}};
+const SKIP=['Shift','CapsLock','Tab','Control','Alt','Meta'];
+const bad=e=>e.repeat||e.ctrlKey||e.metaKey||e.altKey||SKIP.includes(e.key);
+function runRounds(i,rs,fin){let n=0;const go=()=>{if(n>=rs.length){window.onkeydown=null;return finish(i,fin)}rs[n++](go)};go()}
+function kbIntro(title,html,go){
+ A.innerHTML=`${hdr(title)}${html}<button class="go" id="st">${bi('Start!','Mulai!')}</button>`;
+ A.querySelector('#st').onclick=go}
+
+/* Misi 4: Spacebar */
+function spA(ws,idx,tot,next){
+ let w=0;
+ A.innerHTML=`${hdr('Mission 4 · Spacebar · Practice ('+idx+'/'+tot+')')}<h2>${bi('Press the SPACEBAR to put spaces between the words.','Tekan SPACEBAR untuk memberi spasi antar kata.')}</h2><p class="intro">${bi('Look at the blinking line. Press the long key at the bottom of the keyboard.','Lihat garis yang berkedip. Tekan tombol panjang di bagian bawah keyboard.')}</p><div class="tx fx" id="tx"></div><div style="text-align:center"><span class="kcap">Spacebar</span></div><p id="msg" class="msg"></p>`;
+ const tx=A.querySelector('#tx');
+ const draw=()=>{tx.innerHTML=`<span>${ws.slice(0,w+1).join(' ')}</span><b class="cr">|</b><span class="gr">${ws.slice(w+1).join('')}</span>`};
+ draw();
+ window.onkeydown=e=>{
+  if(bad(e))return;e.preventDefault();
+  if(e.key===' '){w++;snd(520);
+   if(w>=ws.length-1){window.onkeydown=null;ok();add();draw();tx.firstChild.className='ok2';msg('Great! Now there are spaces between the words.','Hebat! Sekarang ada spasi di antara kata.',1);setTimeout(next,1700)}
+   else draw()}
+  else{no();msg('Not that key! Press the SPACEBAR (the long key).','Bukan tombol itu! Tekan SPACEBAR (tombol yang panjang).')}}}
+function spB(T,idx,tot,next){
+ const base=T.replace(/ /g,''),need=[];let c=0;for(const ch of T){if(ch===' ')need.push(c);else c++}
+ let s=base,p=0,lock=0;
+ A.innerHTML=`${hdr('Mission 4 · Spacebar · Your turn ('+idx+'/'+tot+')')}<h2>${bi('Click where a word ends. Then press the SPACEBAR.','Klik di tempat kata berakhir. Lalu tekan SPACEBAR.')}</h2><div class="tx edit" id="tx"></div><div style="text-align:center"><span class="kcap">Spacebar</span></div><p id="msg" class="msg"></p>`;
+ const tx=A.querySelector('#tx'),draw=()=>edView(tx,s,p,-1);
+ draw();edClick(tx,i=>{if(!lock){p=i;draw()}});
+ window.onkeydown=e=>{
+  if(lock||bad(e))return;e.preventDefault();
+  if(e.key!==' '){msg('Press the SPACEBAR.','Tekan SPACEBAR.');return}
+  const s2=s.slice(0,p)+' '+s.slice(p);
+  if(spOk(s2,need)){s=s2;p++;snd(520);draw();
+   if(s===T){lock=1;ok();add();tx.innerHTML=`<span class="ok2">${T}</span>`;msg('Great! Every word has its space.','Hebat! Setiap kata punya spasi.',1);setTimeout(next,1700)}}
+  else{no();msg('Not there. Where does a word end? Click, then press SPACEBAR.','Bukan di situ. Di mana kata berakhir? Klik, lalu tekan SPACEBAR.')}}}
+function spC(next){
+ const nm=(me.nama||'').toLowerCase().replace(/[^a-z ]/g,'').replace(/\s+/g,' ').trim()||'andri';
+ const T='my name is '+nm;let k=0;
+ A.innerHTML=`${hdr('Mission 4 · Spacebar · Type it')}<h2>${bi('Type this sentence. Use the SPACEBAR between words.','Ketik kalimat ini. Pakai SPACEBAR di antara kata.')}</h2><div class="tx" style="color:var(--mute)">${esc(T)}</div><div class="tx" id="tx"></div><div style="text-align:center"><span class="kcap">Spacebar</span></div><p id="msg" class="msg"></p>`;
+ const tx=A.querySelector('#tx'),draw=()=>{tx.innerHTML=`<span>${esc(T.slice(0,k)).replace(/ /g,'&nbsp;')}</span><b class="cr">|</b>`};
+ draw();
+ window.onkeydown=e=>{
+  if(bad(e))return;e.preventDefault();
+  if(e.key.length!==1)return;
+  if(e.key.toLowerCase()===T[k]){k++;snd(520);draw();
+   if(k>=T.length){window.onkeydown=null;ok();add();tx.innerHTML=`<span class="ok2">${esc(T)}</span>`;msg('Great! You typed your sentence.','Hebat! Kamu sudah mengetik kalimatmu.',1);setTimeout(next,1800)}}
+  else{no();msg(T[k]===' '?'Press the SPACEBAR.':'Find the letter "'+T[k]+'" on the keyboard.',T[k]===' '?'Tekan SPACEBAR.':'Cari huruf "'+T[k]+'" di keyboard.')}}}
+function m4(i){
+ const SA=[['i','like','red','balls'],['my','cat','is','big'],['the','sun','is','hot']],SB=['i see a bird','we play a game','a red car is fast'];
+ runRounds(i,[...SA.map((ws,k)=>nx=>spA(ws,k+1,3,nx)),...SB.map((T,k)=>nx=>spB(T,k+1,3,nx)),nx=>spC(nx)],bi('You can use the Spacebar!','Kamu bisa memakai Spacebar!'))}
+
+/* Misi 5 & 6: Backspace dan Delete */
+function erRound(o,next){
+ const fixedW=o.w.slice(0,o.x)+o.w.slice(o.x+1);
+ let p=o.fixed?(o.mode==='bs'?o.x+1:o.x):o.w.length,lock=0;
+ const key=o.mode==='bs'?'Backspace ⌫':o.mode==='del'?'Delete (Del)':'Backspace ⌫ or Delete (Del)';
+ const hd=o.mode==='bs'?bi('Erase the red letter with Backspace ⌫.','Hapus huruf merah dengan Backspace ⌫.'):o.mode==='del'?bi('Erase the red letter with Delete.','Hapus huruf merah dengan Delete.'):bi('Erase the red letter. Choose the right key.','Hapus huruf merah. Pilih tombol yang tepat.');
+ const ins=o.fixed?bi('The blinking line is ready. Press the key.','Garis berkedip sudah siap. Tekan tombolnya.'):o.mode==='bs'?bi('Click AFTER the red letter. Then press Backspace.','Klik SESUDAH huruf merah. Lalu tekan Backspace.'):o.mode==='del'?bi('Click BEFORE the red letter. Then press Delete.','Klik SEBELUM huruf merah. Lalu tekan Delete.'):bi('Click next to the red letter. Then press Backspace or Delete.','Klik di dekat huruf merah. Lalu tekan Backspace atau Delete.');
+ A.innerHTML=`${hdr(o.title+' · '+o.lab+' ('+o.idx+'/'+o.total+')')}<h2>${hd}</h2><p class="intro">${ins}</p><div class="tx ${o.fixed?'fx':'edit'}" id="tx"></div><div style="text-align:center">${o.mode!=='del'?'<span class="kcap">Backspace ⌫</span>':''}${o.mode!=='bs'?'<span class="kcap">Delete (Del)</span>':''}</div><p id="msg" class="msg"></p>`;
+ const tx=A.querySelector('#tx'),draw=(w,pp,x)=>edView(tx,w,pp,x);
+ draw(o.w,p,o.x);
+ if(!o.fixed)edClick(tx,i=>{if(!lock){p=i;draw(o.w,p,o.x)}});
+ window.onkeydown=e=>{
+  if(lock||bad(e))return;e.preventDefault();
+  const B=e.key==='Backspace',D=e.key==='Delete';
+  if(!B&&!D){msg('Use '+key+'.','Pakai '+key+'.');return}
+  if(o.mode==='bs'&&!B){msg('This mission is about Backspace ⌫. Press Backspace.','Misi ini tentang Backspace ⌫. Tekan Backspace.');return}
+  if(o.mode==='del'&&!D){msg('This mission is about Delete. Press Delete.','Misi ini tentang Delete. Tekan Delete.');return}
+  const r=erase(o.w,p,e.key);
+  if(r&&r[0]===fixedW){lock=1;window.onkeydown=null;ok();add();tx.innerHTML=`<span class="ok2">${fixedW}</span>`;msg('Correct! The word is fixed.','Benar! Kata sudah diperbaiki.',1);setTimeout(next,1500);return}
+  no();
+  if(r){lock=1;draw(r[0],r[1],-1);
+   msg(B?'Backspace erases the letter on the LEFT of the line. Click AFTER the red letter.':'Delete erases the letter on the RIGHT of the line. Click BEFORE the red letter.',B?'Backspace menghapus huruf di KIRI garis. Klik SESUDAH huruf merah.':'Delete menghapus huruf di KANAN garis. Klik SEBELUM huruf merah.');
+   setTimeout(()=>{draw(o.w,p,o.x);lock=0},2200)}
+  else msg('Nothing to erase on that side. Click next to the red letter first!','Tidak ada yang dihapus di sisi itu. Klik dekat huruf merah dulu!')}}
+const ERS={
+ bsA:[{w:'catt',x:3},{w:'sunn',x:3},{w:'appple',x:3}],bsB:[{w:'cqat',x:1},{w:'bnlue',x:1},{w:'frzog',x:2}],
+ delA:[{w:'xdog',x:0},{w:'zfish',x:0},{w:'sqtar',x:1}],delB:[{w:'dxog',x:1},{w:'bqird',x:1},{w:'plmay',x:2}],
+ mixC:[{w:'mzoon',x:1},{w:'bsook',x:1},{w:'cbake',x:1}]};
+const erList=(arr,mode,fixed,title,lab)=>arr.map((t,k)=>nx=>erRound({...t,mode,fixed,title,lab,idx:k+1,total:arr.length},nx));
+function m5(i){
+ const T='Mission 5 · Backspace';
+ kbIntro(T,`<h2>${bi('The Backspace key','Tombol Backspace')}</h2><div class="card"><div class="tx fx">ab<span class="er">c</span><b class="cr">|</b>def</div><span class="kcap">Backspace ⌫</span><p>${bi('It erases the letter on the LEFT of the blinking line.','Tombol ini menghapus huruf di sebelah KIRI garis berkedip.')}</p></div>`,
+ ()=>runRounds(i,[...erList(ERS.bsA,'bs',true,T,'Practice'),...erList(ERS.bsB,'bs',false,T,'Your turn')],bi('You can use Backspace!','Kamu bisa memakai Backspace!')))}
+function m6(i){
+ const T='Mission 6 · Delete & Fix It';
+ kbIntro(T,`<h2>${bi('The Delete key','Tombol Delete')}</h2><div class="card"><div class="tx fx">abc<b class="cr">|</b><span class="er">d</span>ef</div><span class="kcap">Delete (Del)</span><p>${bi('It erases the letter on the RIGHT of the blinking line.','Tombol ini menghapus huruf di sebelah KANAN garis berkedip.')}</p></div>`,
+ ()=>runRounds(i,[...erList(ERS.delA,'del',true,T,'Practice'),...erList(ERS.delB,'del',false,T,'Your turn'),...erList(ERS.mixC,'any',false,T,'Fix It!')],bi('You can use Delete and fix words with Backspace or Delete!','Kamu bisa memakai Delete dan memperbaiki kata dengan Backspace atau Delete!')))}
+
+/* Exit Ticket & Reflection */
+const KEYS={space:['Spacebar','make a space between words','membuat spasi di antara kata'],back:['Backspace','erase the letter on the left','menghapus huruf di sebelah kiri'],del:['Delete','erase the letter on the right','menghapus huruf di sebelah kanan']};
+const ROLES={monitor:['it shows information and pictures','ia menampilkan informasi dan gambar'],cpu:['it processes information and instructions','ia memproses informasi dan instruksi'],keyboard:['it helps me type and enter information','ia membantuku mengetik dan memasukkan informasi'],mouse:['it helps me point and select','ia membantuku menunjuk dan memilih']};
+function exitTicket(){
+ let kk=null,pk=null,tries=0,hinted=0;
+ const N='Exit Ticket &amp; Reflection';
+ const bl=t=>t?`<span class="blank f">${t}</span>`:'<span class="blank">&nbsp;</span>';
+ const s1=f=>bi(`The ${bl(kk&&KEYS[kk][0])} key is used to ${bl(f&&KEYS[kk][1])}.`,`Tombol ${bl(kk&&KEYS[kk][0])} dipakai untuk ${bl(f&&KEYS[kk][2])}.`);
+ const s2=f=>bi(`One computer part that helps me complete a task is ${bl(pk&&pl(pk))} because ${bl(f&&ROLES[pk][0])}.`,`Satu bagian komputer yang membantuku menyelesaikan tugas adalah ${bl(pk&&pl(pk))} karena ${bl(f&&ROLES[pk][1])}.`);
+ const intro=`<p class="intro">${bi('No stars here. This shows what you learned.','Di sini tidak ada bintang. Ini untuk menunjukkan apa yang kamu pelajari.')}</p>`;
+ const fnStep=(no_,sent,heading,correct,keys,txt,next)=>{
+  let lock=0,wrong=0;const bm={};
+  A.innerHTML=`${hdr(N+' ('+no_+'/4)')}${intro}<div class="sent" id="s">${sent(false)}</div><h2>${heading}</h2><div class="opts"></div><p id="msg" class="msg"></p>`;
+  const o=A.querySelector('.opts'),fill=()=>{A.querySelector('#s').innerHTML=sent(true)};
+  shuffle(keys).forEach(k=>{const b=$(`<button>${txt(k)}</button>`);bm[k]=b;
+   b.onclick=()=>{if(lock||b.disabled)return;
+    if(k===correct){lock=1;ok();b.classList.add('ok');fill();msg('Great!','Bagus!',1);setTimeout(next,1800);return}
+    tries++;wrong++;lock=1;snd(180,.2);shake(b);b.classList.add('dim');b.disabled=true;o.classList.add('lk');
+    if(wrong>=2){hinted=1;bm[correct].classList.add('ok');fill();msg('This is the answer. Let us keep going!','Ini jawabannya. Ayo lanjut!',1);setTimeout(next,3000)}
+    else{msg('Read again. Think about the picture.','Baca lagi. Pikirkan gambarnya.');setTimeout(()=>{lock=0;o.classList.remove('lk')},2000)}};
+   o.append(b)})};
+ const step1=()=>{
+  A.innerHTML=`${hdr(N+' (1/4)')}${intro}<div class="sent">${s1(false)}</div><h2>${bi('Choose one keyboard key to tell about.','Pilih satu tombol keyboard untuk diceritakan.')}</h2><div class="grid" style="grid-template-columns:repeat(3,1fr)"></div>`;
+  const g=A.querySelector('.grid');
+  Object.keys(KEYS).forEach(k=>{const c=$(`<button class="pc"><span class="kcap">${KEYS[k][0]}</span></button>`);c.onclick=()=>{kk=k;step2()};g.append(c)})};
+ const step2=()=>fnStep(2,s1,bi('What is the '+KEYS[kk][0]+' key used to do? Choose one.','Tombol '+KEYS[kk][0]+' dipakai untuk apa? Pilih satu.'),kk,Object.keys(KEYS),k=>bi(KEYS[k][1],KEYS[k][2]),step3);
+ const step3=()=>{
+  A.innerHTML=`${hdr(N+' (3/4)')}${intro}<div class="sent">${s2(false)}</div><h2>${bi('Choose one computer part that helps you complete a task.','Pilih satu bagian komputer yang membantumu menyelesaikan tugas.')}</h2><div class="grid"></div>`;
+  const g=A.querySelector('.grid');
+  Object.keys(P).forEach(k=>{const c=$(`<button class="pc">${P[k].svg}<b>${P[k].n}</b></button>`);c.onclick=()=>{pk=k;step4()};g.append(c)})};
+ const step4=()=>fnStep(4,s2,bi('Why? Choose the reason that fits the '+pl(pk)+'.','Mengapa? Pilih alasan yang cocok untuk '+pl(pk)+'.'),pk,Object.keys(ROLES),k=>bi(ROLES[k][0],ROLES[k][1]),step5);
+ const step5=()=>{
+  et={k:KEYS[kk][0],kf:KEYS[kk][1],p:pl(pk),pf:ROLES[pk][0],x:tries,h:hinted,done:1};save();
+  A.innerHTML=`<div class="card"><div class="big">📝</div><h2>${bi('My Exit Ticket','Tiket Keluarku')}</h2><div class="sent">${bi(`The <b>${KEYS[kk][0]}</b> key is used to <b>${KEYS[kk][1]}</b>.`,`Tombol <b>${KEYS[kk][0]}</b> dipakai untuk <b>${KEYS[kk][2]}</b>.`)}</div><div class="sent">${bi(`One computer part that helps me complete a task is <b>${pl(pk)}</b> because <b>${ROLES[pk][0]}</b>.`,`Satu bagian komputer yang membantuku menyelesaikan tugas adalah <b>${pl(pk)}</b> karena <b>${ROLES[pk][1]}</b>.`)}</div><p>${bi('Ready to share? Read your sentences to the class!','Siap berbagi? Bacakan kalimatmu di depan kelas!')}</p><button class="go" onclick="home()">${bi('Back to menu','Kembali ke menu')}</button></div>`};
+ step1()}
+start();
+</script></body></html>
