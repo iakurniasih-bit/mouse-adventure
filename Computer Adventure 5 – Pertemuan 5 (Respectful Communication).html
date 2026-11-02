@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Computer Adventure 5 – Pertemuan 5</title>
+<style>
+:root{--bg:#fdf3dc;--ink:#26204a;--card:#fffdf7;--line:#26204a;--blue:#3b82f6;--org:#f97316;--grn:#16a34a;--sun:#ffc93c;--mute:#6b6590;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1738;--ink:#fff4dc;--card:#2a2456;--line:#fff4dc;--mute:#b9b2e0}}
+:root[data-theme="dark"]{--bg:#1b1738;--ink:#fff4dc;--card:#2a2456;--line:#fff4dc;--mute:#b9b2e0}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Comic Sans MS",system-ui,sans-serif;font-size:18px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;max-width:900px;margin:0 auto}
+header b{font-size:20px}
+#sc{background:var(--sun);color:#26204a;border-radius:99px;padding:6px 16px;font-weight:700;border:3px solid var(--line)}
+main{max-width:900px;margin:0 auto;padding:0 18px 40px}
+h1{font-size:clamp(28px,6vw,44px);margin:8px 0}
+h2{font-size:clamp(22px,4.5vw,30px);margin:10px 0}
+.sub,.intro{color:var(--mute);margin:4px 0 14px}
+button{font:inherit;color:inherit;cursor:pointer}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.mb{position:relative;text-align:left;background:var(--card);border:3px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:0 5px 0 var(--line);display:grid;gap:2px}
+.mb>span{font-size:38px}.mb small{font-size:15px;color:var(--mute)}.mb em{position:absolute;right:12px;top:10px;font-style:normal;font-size:26px}
+.mb:hover{transform:translateY(-2px)}.mb:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.top{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+.back{background:var(--card);border:3px solid var(--line);border-radius:12px;padding:6px 12px}
+.top span{font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:560px){.grid{grid-template-columns:repeat(2,1fr)}}
+.pc{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:10px;box-shadow:0 5px 0 var(--line);display:grid;gap:4px;justify-items:center}
+.pc svg{width:100%;max-width:130px}
+.pc:hover{transform:translateY(-2px)}
+.pc.ok{background:#bbf7d0;color:#14532d}
+.msg{min-height:30px;font-weight:700;margin:10px 0}
+.msg.good{color:var(--grn)}.msg.bad{color:var(--org)}
+.stage{position:relative;height:340px;background:var(--card);border:3px solid var(--line);border-radius:18px;overflow:hidden;user-select:none;-webkit-user-select:none;cursor:default}
+.tg{position:absolute;width:90px;text-align:center;font-size:58px;line-height:1.1;cursor:pointer;animation:fl 2s ease-in-out infinite}
+.tg i{display:block;font-style:normal;font-size:14px;font-weight:700;color:#fff;border-radius:99px;padding:2px 8px;margin-top:2px}
+.tg.pop{animation:pop .45s forwards;pointer-events:none}
+.tg.wig{animation:wig .35s}
+@keyframes fl{50%{transform:translateY(-8px)}}
+@keyframes pop{40%{transform:scale(1.5) rotate(10deg)}100%{transform:scale(0);opacity:0}}
+@keyframes wig{25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.shake{animation:wig .35s}
+.hud{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:700}
+.hud svg{width:56px}
+.bar{height:14px;background:var(--card);border:3px solid var(--line);border-radius:99px;width:min(220px,50vw);overflow:hidden}
+.bar div{height:100%;background:var(--grn);width:0;transition:width .3s}
+.card{background:var(--card);border:3px solid var(--line);border-radius:22px;padding:22px;text-align:center;box-shadow:0 6px 0 var(--line)}
+.big{font-size:72px}
+.go{background:var(--sun);color:#26204a;border:3px solid var(--line);border-radius:14px;padding:10px 22px;font-weight:700;box-shadow:0 4px 0 var(--line);margin-top:10px}
+.learn{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.learn .pc{cursor:default;text-align:center}.learn p{margin:0;font-size:15px}
+.bigmouse{width:min(260px,70vw);display:block;margin:10px auto}
+.bigmouse path{cursor:pointer;transition:fill .15s}
+.opts{display:grid;gap:10px;margin-top:10px}
+.opts button{background:var(--card);border:3px solid var(--line);border-radius:14px;padding:12px;text-align:left}
+.opts button.ok{background:#bbf7d0;color:#14532d}
+.f{display:grid;gap:12px;max-width:340px;margin:14px auto;text-align:left}
+.f input,.f select,#fl{display:block;width:100%;font:inherit;padding:10px 12px;border:3px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);margin-top:4px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:16px;background:var(--card)}
+#fl{width:auto;display:inline-block;margin:0}small{font-size:13px;color:var(--mute)}
+th,td{border:2px solid var(--line);padding:6px 8px;text-align:left}
+textarea{width:100%;height:140px;font:14px monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);border-radius:12px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:18px;z-index:9}
+.ov .card{max-width:360px;width:100%}.bt{display:flex;gap:10px;justify-content:center;margin-top:10px}.bt .go{margin-top:0}
+.ov input{font:inherit;width:100%;padding:10px 12px;border:3px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink)}
+.en{display:block}.id{display:block;font-size:.72em;font-weight:400;color:var(--mute);margin-top:2px}
+body.noid .id{display:none}.tg i .id{color:#fff;font-size:11px;margin:0}
+.blank{display:inline-block;min-width:90px;border-bottom:4px solid var(--blue);text-align:center;color:var(--blue);font-weight:700;padding:0 6px}.blank.f{border-bottom-color:var(--grn);color:var(--grn)}
+.sent{font-size:clamp(20px,4.2vw,30px);line-height:1.6;margin:10px 0}.sent .id{line-height:1.5}
+.mb.wide{width:100%;margin-top:14px}#lg{padding:4px 10px;margin-right:8px}
+.pc{position:relative}.pc.sel{background:#bbf7d0;color:#14532d}.pc.sel::after{content:"✓";position:absolute;top:4px;right:10px;font-size:28px;color:#16a34a}
+.opts button.dim{opacity:.4;text-decoration:line-through;cursor:not-allowed}.opts.lk{pointer-events:none}.opts.lk button:not(.dim){opacity:.6}
+.go:disabled{opacity:.5;cursor:not-allowed}
+.desk{position:relative;height:340px;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#60a5fa,#a78bfa);user-select:none;-webkit-user-select:none;cursor:default}
+.ic{position:absolute;width:104px;text-align:center;padding:6px;border:2px solid transparent;border-radius:8px;color:#fff;font-size:14px;text-shadow:0 1px 2px #0008}
+.ic svg{width:60px;display:block;margin:0 auto 4px}.ic.sel{background:rgba(255,255,255,.3);border-color:#fff}
+.win{position:absolute;left:150px;right:12px;top:12px;background:#fff;color:#111;border:2px solid #333;border-radius:10px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.4);z-index:3}
+.win .tb{display:flex;justify-content:space-between;align-items:center;background:#e5e7eb;padding:4px 8px;font-size:14px;font-weight:700}
+.win .tb button{background:#ef4444;color:#fff;border:0;border-radius:6px;font-weight:700;padding:2px 10px}
+.win .bd{padding:8px;height:210px;overflow:hidden}
+.sh{border-collapse:collapse;width:100%;font-size:14px;background:#fff;color:#111}.sh th,.sh td{border:1px solid #d0d7de;padding:3px 8px;text-align:left;font-weight:400}.sh th{background:#f1f3f4;color:#555}
+.cm{position:absolute;z-index:5;background:#fff;color:#111;border:1px solid #888;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.35);padding:4px 0;min-width:160px;font-size:15px}
+.cm div{padding:4px 16px}.cm div:hover{background:#dbeafe}.cm hr{border:0;border-top:1px solid #ddd;margin:3px 0}
+.ck-list{list-style:none;padding:0;margin:0 0 10px;display:grid;gap:6px}.ck-list li{background:var(--soft);border:3px solid var(--line);border-radius:12px;padding:6px 12px}.ck-list li.dn{background:#bbf7d0;color:#14532d}
+.bk{position:absolute;top:70px;width:100px;height:100px;font-size:64px;display:grid;place-items:center;border:4px dashed var(--line);border-radius:18px}
+.bl{position:absolute;top:84px;width:80px;height:80px;font-size:56px;display:grid;place-items:center;z-index:2}
+.dg{cursor:grab;user-select:none;-webkit-user-select:none}.drg{cursor:grabbing;z-index:9;position:relative;filter:drop-shadow(0 6px 6px rgba(0,0,0,.35))}
+.bl.drg{position:absolute}.sel{outline:4px solid var(--blue);border-radius:14px}
+.tgt{border:3px dashed var(--line);border-radius:14px;padding:10px;text-align:center;min-height:120px;display:grid;align-content:center;gap:6px;background:var(--card)}
+.tgt.over,.bk.over{background:#bbf7d0;border-style:solid}.tgt .pc{padding:4px;box-shadow:none;border:0}
+.tgt .en::first-letter,.tgt .id::first-letter{text-transform:uppercase}
+.flow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+.slot{min-width:110px;padding:10px;border:3px dashed var(--line);border-radius:14px;text-align:center;font-weight:700}
+.slot.f{background:#bbf7d0;color:#14532d;border-style:solid}.slot.a{border-color:var(--blue)}.arw{font-size:26px}
+.tx{font-size:clamp(28px,6vw,44px);font-family:"Courier New",monospace;background:var(--card);border:3px solid var(--line);border-radius:14px;padding:18px;text-align:center;min-height:90px;margin:10px 0}
+.tx .gr{color:var(--mute)}.cr{display:inline-block;width:0;overflow:hidden;height:1.15em;vertical-align:text-bottom;border-left:3px solid var(--org);margin:0 -1.5px;color:transparent;animation:bk 1s steps(1) infinite}.ch{display:inline-block;min-width:.55em;cursor:text}.ch:hover{background:#dbeafe;border-radius:4px}.tx.fx .ch{cursor:default}.tx.fx .ch:hover{background:none}@keyframes bk{50%{opacity:0}}
+.er{background:#fecaca;color:#991b1b;border-radius:4px}.ok2{background:#bbf7d0;color:#14532d;border-radius:4px}
+.kcap{display:inline-block;padding:12px 18px;border:3px solid var(--line);border-radius:10px;background:#e2e8f0;color:#26204a;font-weight:700;box-shadow:0 4px 0 var(--line);margin:4px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:12px 0}
+.kb{display:grid;gap:5px;margin:10px 0;justify-content:center}.kr{display:flex;gap:5px;justify-content:center}.kr:nth-child(2){padding-left:14px}.kr:nth-child(3){padding-left:30px}
+.k{position:relative;width:clamp(24px,5.4vw,42px);height:clamp(26px,5.4vw,42px);border:2px solid var(--line);border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:clamp(11px,2.3vw,17px);color:#26204a;opacity:.5}
+.k.on{opacity:1;transform:scale(1.2);box-shadow:0 0 0 4px var(--blue);z-index:2}.k.bump::after{content:"";position:absolute;bottom:3px;left:32%;right:32%;border-bottom:3px solid #26204a}.k.sp{width:min(48vw,250px)}
+.f-lp,.f-rp{background:#f9a8d4}.f-lr,.f-rr{background:#fdba74}.f-lm,.f-rm{background:#fde047}.f-li,.f-ri{background:#86efac}.f-th{background:#bae6fd}
+.fing{text-align:center;font-weight:700;margin:4px 0}
+.tv{font-size:clamp(26px,6vw,46px);font-family:"Courier New",monospace;letter-spacing:.08em;text-align:center;background:var(--card);border:3px solid var(--line);border-radius:14px;padding:14px;margin:8px 0;min-height:76px;word-break:break-word}
+.tv .d{color:var(--grn)}.tv .c{color:var(--org);border-bottom:4px solid var(--org)}.tv .p{color:var(--mute)}
+.warn{background:#fde68a;color:#7c2d12;border:3px solid #f59e0b;border-radius:12px;padding:8px 12px;font-weight:700;text-align:center;margin:6px 0}
+.pill{display:inline-block;padding:4px 14px;border:3px solid var(--line);border-radius:99px;font-weight:700;background:var(--card);margin:4px 0}.pill.on{background:#fde68a;color:#7c2d12}
+.cin{display:block;width:100%;font:inherit;font-size:20px;padding:10px 12px;border:3px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:4px 0 12px}.cl{display:block;font-weight:700}
+.pf{display:inline-grid;place-items:center;width:46px;height:46px;border-radius:50%;color:#fff;font-weight:700;flex:none}
+.opts button.pb{display:flex;align-items:center;gap:12px}
+.av{width:64px;height:64px;border-radius:50%;object-fit:cover;flex:none}.card .av{display:block;margin:0 auto 6px}.card .ci{margin:0 auto 10px}
+.ci{position:relative;display:inline-block;width:84px;height:84px}.ci svg{width:100%;height:100%}.ci img{position:absolute;right:-8px;bottom:-8px;width:42px;height:42px;border-radius:50%;border:3px solid #fff;background:#fff}
+.opts button.ib{display:grid;place-items:center;padding:18px}.opts.row{grid-template-columns:repeat(2,1fr)}
+.k.hit{transform:scale(1.25);box-shadow:0 0 0 4px var(--org);z-index:3;opacity:1}
+.k small{position:absolute;top:1px;left:0;right:0;text-align:center;font-size:.68em;line-height:1}.k.sh{width:min(13vw,78px);background:#e2e8f0}
+.ks .kr:nth-child(1){padding-left:0}.ks .kr:nth-child(2){padding-left:12px}.ks .kr:nth-child(3){padding-left:26px}.ks .kr:nth-child(4){padding-left:44px}.ks .kr:nth-child(5){padding-left:0}
+.steps{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:6px;counter-reset:none}
+.steps li{display:flex;gap:10px;align-items:center;font-weight:600;cursor:default}
+.steps .n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:14px}
+.steps li.dn .n{background:var(--grn);color:#fff}.steps li.dn{opacity:.65}
+.tg1{color:var(--blue);border-bottom:3px solid var(--blue)}.tg2{color:var(--org);border-bottom:3px solid var(--org)}
+.cl.c1{color:var(--blue)}.cl.c2{color:var(--org)}
+.cin.c1{border-color:var(--blue);box-shadow:0 0 0 3px rgba(59,130,246,.22)}.cin.c2{border-color:var(--org);box-shadow:0 0 0 3px rgba(249,115,22,.22)}
+:root{--soft:#e9e8e3}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--soft:#3b3470}}:root[data-theme="dark"]{--soft:#3b3470}
+.bls{display:flex;gap:10px;justify-content:center;align-items:flex-end;flex-wrap:wrap;min-height:130px;margin:12px 0 26px}
+.b2{position:relative;width:54px;height:64px;border-radius:50% 50% 48% 48%;border:3px solid #26204a;display:grid;place-items:center;font:700 26px "Courier New",monospace;color:#26204a;transition:transform .2s}
+.b2::after{content:"";position:absolute;bottom:-18px;left:50%;width:2px;height:16px;background:#888780}
+.b2.act{width:78px;height:92px;font-size:38px;border-color:#185FA5;border-width:5px}
+.b2.sp span{font-size:12px}.b2.done{animation:pop2 .35s forwards}.b2.wob{animation:wob .4s}
+@keyframes pop2{40%{transform:scale(1.35)}100%{transform:scale(1.7);opacity:0;visibility:hidden}}
+.c0{background:#CECBF6}.c1{background:#9FE1CB}.c2{background:#F5C4B3}.c3{background:#B5D4F4}.c4{background:#FAC775}.c5{background:#F4C0D1}
+.kb.faded{opacity:.55;transform:scale(.85);transform-origin:top center}
+.msgbox{background:var(--card);border:3px solid var(--line);border-radius:14px;padding:12px 16px;margin:8px 0 12px;line-height:1.7}
+.opts button.msgo{text-align:left}.slots{display:grid;gap:8px;margin:8px 0}.slot2{min-height:54px;text-align:left;display:flex;align-items:center;gap:10px}
+.slot2 .num{flex:none;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:700}
+.cards{display:grid;gap:8px;margin:12px 0}.msgc{text-align:left;padding:10px 12px;font-weight:600}.slot2 .msgc{flex:1;box-shadow:none}
+.mf{display:grid;gap:4px;margin:10px 0}
+.sea{position:relative;height:210px;border:3px solid var(--line);border-radius:18px;overflow:hidden;background:linear-gradient(#B5D4F4,#85B7EB);margin:8px 0}
+.fishw{position:absolute;top:56px;left:6%;animation:swim 16s ease-in-out infinite alternate;text-align:center}
+@keyframes swim{from{left:6%}to{left:60%}}
+.fishw svg{display:block;margin:0 auto;animation:bob 3s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translateY(-6px)}to{transform:translateY(6px)}}
+.fishw svg .tl,.fishw svg .bd{fill:var(--fc,#F5C4B3);stroke:#26204a;stroke-width:2}
+.tag{display:inline-block;font:700 28px "Courier New",monospace;background:#fff;color:#26204a;border:3px solid #185FA5;border-radius:10px;padding:2px 12px;margin-bottom:6px;letter-spacing:.1em}
+.tag .d{color:#0F6E56}.tag .c{border-bottom:4px solid #185FA5}.tag .p{color:#888780}.tag.wob{animation:wob .4s}
+.fishw.caught{animation:catchf .6s forwards}
+@keyframes catchf{to{transform:translateY(-50px) scale(.2);opacity:0}}
+.spb{width:110px;height:40px;border-radius:10px;background:#B5D4F4;border:3px solid #185FA5;display:grid;place-items:center;font:600 17px system-ui,sans-serif;color:#26204a;box-shadow:0 5px 0 #185FA5;margin-bottom:6px}
+.spb.act{width:150px;height:52px;border-width:5px;font-size:20px}.spb.done{animation:pressb .3s forwards}.spb.wob{animation:wob .4s}
+@keyframes pressb{to{transform:translateY(5px);box-shadow:0 0 0 #185FA5;opacity:.5}}
+.bls{flex-wrap:nowrap;gap:calc(var(--bw,54px)*.18)}
+.b2{width:var(--bw,54px);height:var(--bh,64px);font-size:var(--fs,26px)}
+.b2.act{width:var(--aw,78px);height:var(--ah,92px);font-size:var(--afs,38px)}
+.spb{width:var(--bw,54px);height:calc(var(--bw,54px)*.5);font-size:calc(var(--bw,54px)*.22);border-width:2px;box-shadow:0 3px 0 #185FA5;border-radius:6px;margin-bottom:6px;padding:0}
+.spb.act{width:var(--aw,78px);height:calc(var(--aw,78px)*.5);font-size:calc(var(--aw,78px)*.2);border-width:4px}
+.spb.done{animation:pop2 .35s forwards}
+.sky{position:relative;height:240px;border:3px solid var(--line);border-radius:18px;overflow:hidden;margin:8px 0;background:radial-gradient(circle at 18% 28%,rgba(255,255,255,.55) 0 2px,transparent 3px),radial-gradient(circle at 74% 18%,rgba(255,255,255,.55) 0 2px,transparent 3px),radial-gradient(circle at 88% 70%,rgba(255,255,255,.55) 0 2px,transparent 3px),linear-gradient(#3C3489,#534AB7)}
+.starw{position:absolute;left:8%;top:30px;animation:drift 22s ease-in-out infinite;text-align:center}
+@keyframes drift{0%{left:8%;top:30px}25%{left:48%;top:84px}50%{left:66%;top:34px}75%{left:28%;top:90px}100%{left:8%;top:30px}}
+.starw svg{display:block;margin:0 auto;animation:wiggle 2.4s ease-in-out infinite alternate}
+@keyframes wiggle{from{transform:rotate(-6deg)}to{transform:rotate(6deg)}}
+.starw svg .st{fill:var(--fc,#FAC775);stroke:#26204a;stroke-width:2;stroke-linejoin:round}
+.starw.caught{animation:catchs .6s forwards}
+@keyframes catchs{50%{transform:scale(1.4) rotate(20deg)}to{transform:translateY(-40px) scale(.1) rotate(80deg);opacity:0}}
+.tbar{height:14px;background:var(--card);border:3px solid var(--line);border-radius:99px;overflow:hidden;margin:8px 0 2px}
+.tfill{height:100%;background:var(--org);width:100%}
+.hands{width:100%;max-width:620px;display:block;margin:6px auto}.hands .pulse{animation:pls 1.2s ease-in-out infinite}
+@keyframes pls{50%{opacity:.25}}
+.msgbox,.card{background:var(--soft);border-color:#bdb9ad;box-shadow:none}
+.card.fp{background:var(--card);border-color:var(--line);box-shadow:0 6px 0 var(--line)}
+.opts button,.pc{background:#fff}
+.opts button.ok,.pc.ok{background:#bbf7d0}.opts button.dim{background:var(--soft)}
+.wcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.wc{position:relative;display:flex;align-items:center;gap:14px;text-align:left;background:#fff;color:#26204a;border:3px solid var(--line);border-radius:18px;padding:14px 38px 14px 16px;min-height:78px;font:700 20px "Trebuchet MS",system-ui,sans-serif;box-shadow:0 5px 0 var(--line);cursor:pointer}
+.wc .wic{font-size:38px;flex:none;line-height:1}.wc .nm{flex:1}
+.wc:hover{transform:translateY(-2px)}.wc:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.wc.sel{border-color:#185FA5;box-shadow:0 5px 0 #185FA5;outline:4px solid #B5D4F4}
+.wc .ck{position:absolute;top:2px;right:6px;font-size:18px}
+.wpanel{min-height:130px;text-align:left}.wpanel h3{margin:0 0 8px;font-size:26px}.wpanel p{margin:6px 0}
+:focus-visible{outline:4px solid var(--blue);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* tambahan Pertemuan 5 */
+.segs{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}
+.seg{background:#fff;color:#26204a;border:3px solid var(--line);border-radius:14px;padding:10px 14px;font:inherit;font-weight:600;text-align:left;cursor:pointer;box-shadow:0 3px 0 var(--line)}
+.seg.on{background:#fecaca;border-color:#b91c1c}
+.seg.good{background:#bbf7d0;border-color:#15803d}
+.ti{display:block;width:100%;font:inherit;font-size:20px;padding:12px 14px;border:3px solid var(--line);border-radius:14px;background:#fff;color:#26204a;margin:10px 0}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.chip{background:#fff;color:#26204a;border:2px solid var(--line);border-radius:999px;padding:6px 14px;font:inherit;font-size:15px;cursor:pointer}
+.opts.three{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+</style></head><body>
+<header><b>🤝 Computer Adventure 5</b><span><button id="lg" class="back" aria-pressed="true" title="Bahasa Indonesia">ID ✓</button><span id="sc">⭐ 0</span></span></header>
+<main id="app"></main>
+<script>
+const A=document.getElementById('app'),SC=document.getElementById('sc');
+let stars=0,done={},ms={},cur=0,flt='',me=null,et=null,sch=[],xr='',fb=0,dropOut=0;
+const MM=[7,9,5,9,8,7],MN=['M1 Kind or Unkind','M2 Respectful or Disrespectful','M3 Find the Words','M4 STOP THINK CHECK SEND','M5 Send Change or Ask for Help','M6 Make It Kind'],KLS=['3 Aster','3 Gardenia','3 Gloxinia','3 Lavender'],MAX=45,KODE='guru123',KEY='pm5_results';let mem=[];
+/* Alamat Google Apps Script (Web app, berakhiran /exec). Kosong = pengiriman ke Google Sheet mati. */
+const SYNC='https://script.google.com/macros/s/AKfycbxlOaom3DHLCKEg9h_enfOiVeEi0oBqD9rrojtv7H-Vw1x1CRXlcvO20GWacvDeLaE/exec';
+const TAB='Pertemuan 5'; /* nama tab di Google Sheet */
+const $=h=>{const d=document.createElement('div');d.innerHTML=h.trim();return d.firstChild};
+const bi=(en,id)=>`<span class="en">${en}</span>${id?`<span class="id">${id}</span>`:''}`;
+const rec=()=>(ms[cur]=ms[cur]||{s:0,x:0});
+const recalc=()=>{stars=0;for(const k in ms)stars+=ms[k].s;SC.textContent='⭐ '+stars};
+const add=n=>{rec().s+=n||1;recalc()};
+function snd(f,d){try{const c=snd.c||(snd.c=new(window.AudioContext||window.webkitAudioContext)());const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.value=f;g.gain.value=.12;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+(d||.12))}catch(e){}}
+const ok=()=>{snd(660);setTimeout(()=>snd(880),90)},no=()=>{rec().x++;snd(180,.2)};
+const shuffle=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const msg=(en,id,g)=>{const m=A.querySelector('#msg');if(m){m.innerHTML=bi(en,id);m.className='msg '+(g?'good':'bad')}};
+const shake=el=>{el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
+const stamp=()=>{const d=new Date(),z=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())+' '+z(d.getHours())+':'+z(d.getMinutes())};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const goBack=()=>me?home():start();
+const hdr=t=>`<div class="top"><button class="back" onclick="goBack()">⬅ Menu</button><span>${t}</span></div>`;
+const setLang=on=>{document.body.classList.toggle('noid',!on);const b=document.getElementById('lg');b.textContent=on?'ID ✓':'ID ✕';b.setAttribute('aria-pressed',on)};
+document.getElementById('lg').onclick=()=>setLang(document.body.classList.contains('noid'));
+
+const KEYSC='CSHCHS';
+const MEANS=[['using kind and polite words and thinking about other people','menggunakan kata yang baik dan sopan serta memikirkan orang lain',1],['typing as fast as I can','mengetik secepat yang aku bisa',0],['sending a message before I think','mengirim pesan sebelum aku berpikir',0]];
+const RULES=[['Use kind words.','Gunakan kata-kata yang baik.'],['Think before sending.','Pikir sebelum mengirim.'],['Check my message.','Periksa pesanku.'],['Respect other people.','Hargai orang lain.'],['Ask an adult when I am unsure.','Tanya orang dewasa saat aku ragu.']];
+const eDone=r=>r.e&&r.e.done;
+const scTxt=r=>r.sc?r.sc.split('').map(c=>({S:'Send',C:'Change',H:'Ask for Help'}[c]||'-')).join(', '):'';
+const scOk=r=>r.sc?r.sc.split('').filter((c,k)=>c===KEYSC[k]).length:'';
+const HD=['Nama','Kelas'].concat(...MN.map(n=>[n+' Bintang',n+' Salah']),['Misi Selesai','Total Bintang','Maks','Pilihan Skenario Misi 5 (kunci: Change, Send, Ask for Help, Change, Ask for Help, Send)','Skenario Benar Pada Pilihan Pertama (dari 6)','Misi 2: I think this message is disrespectful because…','Exit Ticket: Respectful digital communication means','Exit Ticket: 3 Aturan Penting','Exit Ticket: Before I send a digital message, I should','Exit Ticket: Respectful communication is important because','Exit Ticket Salah Pilih','Lepas Di Luar Target','Pakai Klik-Klik','Waktu']);
+const rowOf=r=>[r.nama,r.kelas].concat(...MM.map((_,i)=>{const m=(r.m||[])[i];return m&&(m.d||m.s||m.x)?[m.s,m.x]:['','']}),[r.misi||0,r.bintang,MAX,scTxt(r),scOk(r),r.xr||'',eDone(r)?MEANS[r.e.m][0]:'',eDone(r)?r.e.r.map(k=>RULES[k][0]).join(' | '):'',eDone(r)?r.e.b:'',eDone(r)?r.e.w:'',eDone(r)?r.e.x:'',r.o||0,r.f?'Ya':'',r.waktu]);
+
+/* kirim ke Google Sheet (antrean; dicoba ulang otomatis) */
+const QK='pm5_queue';let qmem={},sending=0;
+const qload=()=>{try{return JSON.parse(localStorage.getItem(QK)||'{}')}catch(e){return qmem}};
+const qsave=q=>{qmem=q;try{localStorage.setItem(QK,JSON.stringify(q))}catch(e){}};
+async function flush(){
+ if(!SYNC||sending)return;sending=1;
+ try{
+  const q=qload();
+  for(const id of Object.keys(q)){
+   await fetch(SYNC,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({tab:TAB,head:['ID'].concat(HD),row:q[id]})});
+   const q2=qload();if(JSON.stringify(q2[id])===JSON.stringify(q[id]))delete q2[id];qsave(q2);
+  }
+ }catch(e){}
+ sending=0}
+function queue(r){if(!SYNC)return;const q=qload();q[r.id]=[r.id].concat(rowOf(r));qsave(q);flush()}
+setInterval(flush,30000);window.addEventListener('online',flush);
+
+/* penyimpanan */
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){return mem}};
+const store=a=>{mem=a;try{localStorage.setItem(KEY,JSON.stringify(a))}catch(e){}};
+function save(){if(!me)return;const a=load(),r={id:me.id,nama:me.nama,kelas:me.kelas,bintang:stars,misi:Object.keys(done).length,m:[0,1,2,3,4,5].map(i=>({d:done[i]?1:0,s:(ms[i]||{}).s||0,x:(ms[i]||{}).x||0})),e:et,sc:sch.join(''),xr:xr,o:dropOut,f:fb,waktu:stamp()};const j=a.findIndex(x=>x.id===me.id);j<0?a.push(r):a[j]=r;store(a);queue(r)}
+
+/* awal */
+function start(){
+ done={};ms={};me=null;et=null;sch=[];xr='';dropOut=0;fb=0;window.onkeydown=null;window.onkeyup=null;recalc();setLang(false);
+ A.innerHTML=`<div class="card fp"><div class="big">👋</div><h1>${bi('Hello! What is your name?','Halo! Siapa namamu?')}</h1><div class="f"><label>${bi('Name','Nama')}<input id="nm" maxlength="30" autocomplete="off"></label><label>${bi('Class','Kelas')}<select id="kl"><option value="">Choose / Pilih</option>${KLS.map(k=>`<option>${k}</option>`).join('')}</select></label></div><p id="msg" class="msg"></p><button class="go" id="go">${bi("Let's play!",'Mulai bermain')}</button></div><p style="text-align:center;margin-top:18px"><button class="back" id="gr">Untuk guru</button></p>`;
+ const go=()=>{const nm=A.querySelector('#nm').value.trim(),kl=A.querySelector('#kl').value;if(!nm){msg('Please write your name.','Tulis namamu dulu ya.');return}if(!kl){msg('Please choose your class.','Pilih kelasmu dulu ya.');return}me={id:'S'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36),nama:nm,kelas:kl};save();home()};
+ A.querySelector('#go').onclick=go;
+ A.querySelectorAll('input').forEach(i=>i.onkeydown=e=>{if(e.key==='Enter')go()});
+ A.querySelector('#gr').onclick=teacher;
+}
+function dlg(text,yes,label){
+ const o=$(`<div class="ov"><div class="card"><p>${text}</p><div class="bt"></div></div></div>`);
+ const y=$(`<button class="go">${label||'Ya'}</button>`),n=$('<button class="back">Batal</button>');
+ y.onclick=()=>{o.remove();yes()};n.onclick=()=>o.remove();
+ o.querySelector('.bt').append(y,n);document.body.append(o)}
+function gantiSiswa(){stars?dlg('Ganti siswa? Skor ini sudah tersimpan.',start,'Ya, ganti'):start()}
+function gate(){
+ const o=$('<div class="ov"><div class="card"><p>Masukkan kode guru</p><input type="password" autocomplete="off"><p class="msg bad"></p><div class="bt"></div></div></div>');
+ const i=o.querySelector('input'),e=o.querySelector('.msg');
+ const go=()=>{if(i.value===KODE){o.remove();teacher(true)}else{e.textContent='Kode salah.';i.select()}};
+ const y=$('<button class="go">Masuk</button>'),n=$('<button class="back">Batal</button>');
+ y.onclick=go;n.onclick=()=>o.remove();i.onkeydown=ev=>{if(ev.key==='Enter')go()};
+ o.querySelector('.bt').append(y,n);document.body.append(o);i.focus()}
+
+
+/* guru */
+function teacher(skip){
+ if(skip!==true)return gate();
+ const all=load(),a=all.filter(r=>!flt||r.kelas===flt);
+ const mi=(r,i)=>(r.m||[])[i];
+ const cell=(r,i)=>{const m=mi(r,i);return m&&m.d?`${m.s}/${MM[i]}<br><small>salah ${m.x}</small>`:m&&(m.s||m.x)?`${m.s}/${MM[i]}<br><small>salah ${m.x} · belum selesai</small>`:'–'};
+ const avg=i=>{const v=a.map(r=>mi(r,i)).filter(m=>m&&m.d);return v.length?(v.reduce((t,m)=>t+m.s,0)/v.length).toFixed(1)+'/'+MM[i]:'–'};
+ const rows=a.map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td>${MM.map((_,i)=>`<td>${cell(r,i)}</td>`).join('')}<td><b>${r.bintang}/${MAX}</b></td></tr>`).join('')||'<tr><td colspan="9">Belum ada hasil.</td></tr>';
+ const srows=a.map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td><td>${esc(scTxt(r))||'–'}</td><td>${r.sc?scOk(r)+'/6':'–'}</td><td>${r.o||0}</td><td>${r.f?'Ya':'–'}</td></tr>`).join('')||'<tr><td colspan="6">Belum ada hasil.</td></tr>';
+ const erows=a.map(r=>`<tr><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td><td>${esc(r.xr||'–')}</td><td>${eDone(r)?esc(MEANS[r.e.m][0]):'–'}</td><td>${eDone(r)?esc(r.e.r.map(k=>RULES[k][0]).join(' | ')):'–'}</td><td>${eDone(r)?esc(r.e.b):'–'}</td><td>${eDone(r)?esc(r.e.w):'–'}</td></tr>`).join('')||'<tr><td colspan="7">Belum ada hasil.</td></tr>';
+ const sel=`<select id="fl"><option value="">Semua kelas</option>${KLS.map(k=>`<option${k===flt?' selected':''}>${k}</option>`).join('')}</select>`;
+ const syTxt=SYNC?'Google Sheet: aktif. Menunggu terkirim: '+Object.keys(qload()).length+'.':'Google Sheet: belum diatur. Hasil hanya tersimpan di komputer ini.';
+ A.innerHTML=`${hdr('Hasil Pertemuan 5')}<p>Kelas: ${sel}</p><div class="tw"><table><tr><th>Nama</th><th>Kelas</th>${MN.map(n=>`<th>${n}</th>`).join('')}<th>Total</th></tr>${rows}<tr><td colspan="2"><i>Rata-rata</i></td>${MM.map((_,i)=>`<td><i>${avg(i)}</i></td>`).join('')}<td></td></tr></table></div><p class="intro">Angka = bintang didapat / maksimum. "salah" = jumlah pilihan yang belum tepat. "belum selesai" = misi dihentikan di tengah jalan.</p><h2>Misi 5: Send, Change, or Ask for Help</h2><div class="tw"><table><tr><th>Nama</th><th>Kelas</th><th>Pilihan pertama (skenario 1-6)</th><th>Benar pada pilihan pertama</th><th>Lepas di luar target</th><th>Pakai klik-klik</th></tr>${srows}</table></div><p class="intro">Kunci jawaban: Change, Send, Ask for Help, Change, Ask for Help, Send. "Benar pada pilihan pertama" menunjukkan siswa memutuskan tanpa dibantu petunjuk.</p><h2>Exit Ticket &amp; Refleksi</h2><div class="tw"><table><tr><th>Nama</th><th>Kelas</th><th>Misi 2: alasan (typed)</th><th>Respectful digital communication means…</th><th>3 aturan penting</th><th>Before I send a digital message, I should…</th><th>Respectful communication is important because…</th></tr>${erows}</table></div><p class="intro">${syTxt}</p><p id="msg" class="msg"></p><button class="go" id="dl">Unduh CSV</button> <button class="go" id="sy"${SYNC?'':' disabled'}>Kirim ulang ke Google Sheet</button> <button class="go" id="cl">Hapus semua</button><div id="ta"></div>`;
+ A.querySelector('#sy').onclick=async()=>{await flush();teacher(true)};
+ A.querySelector('#fl').onchange=e=>{flt=e.target.value;teacher(true)};
+ const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+ const hd=HD,data=a.map(rowOf);
+ const csv='\uFEFF'+[hd].concat(data).map(r=>r.map(q).join(',')).join('\r\n');
+ const tsv=[hd].concat(data).map(r=>r.map(v=>String(v).replace(/[\t\r\n]+/g,' ')).join('\t')).join('\n');
+ const showTxt=note=>{A.querySelector('#ta').innerHTML='<p>'+note+'</p><textarea readonly></textarea>';const t=A.querySelector('textarea');t.value=tsv;t.select()};
+ A.querySelector('#dl').onclick=async()=>{
+  const d=window.claude?await window.claude.use('downloads'):null;
+  if(d){try{await d.save({filename:'hasil-pertemuan-5.csv',data:csv});msg('Tersimpan.','',1);return}catch(e){if(e&&e.code==='declined')return}}
+  try{const u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));const l=document.createElement('a');l.href=u;l.download='hasil-pertemuan-5.csv';document.body.append(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),2000);msg('File hasil-pertemuan-5.csv diunduh. Cek folder Downloads.','',1)}catch(e){}
+  showTxt('Kalau file belum terunduh, salin teks ini lalu tempel ke Google Sheets. Kolom akan terbagi otomatis:')};
+ A.querySelector('#cl').onclick=()=>{dlg('Hapus semua hasil di komputer ini?',()=>{store([]);teacher(true)},'Ya, hapus')};
+}
+
+/* utilitas drag & drop */
+const at=(e,ts)=>ts.find(t=>{const r=t.getBoundingClientRect();return e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom});
+function dnd(items,targets,drop){
+ let sel=null;
+ const pick=x=>{sel=x;items.forEach(i=>i.classList.toggle('sel',i===x))};
+ items.forEach(it=>{
+  let on=0,sx=0,sy=0;
+  it.classList.add('dg');it.style.touchAction='none';
+  it.onpointerdown=e=>{if(e.button!==0||it.dataset.lock)return;e.preventDefault();on=1;sx=e.clientX;sy=e.clientY;it.dataset.mv='';it.setPointerCapture(e.pointerId);it.classList.add('drg');it.style.transition='none'};
+  it.onpointermove=e=>{if(!on)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>6)it.dataset.mv='1';it.style.transform=`translate(${dx}px,${dy}px)`;const t=at(e,targets);targets.forEach(x=>x.classList.toggle('over',x===t))};
+  const end=e=>{if(!on)return;on=0;it.classList.remove('drg');const t=at(e,targets);targets.forEach(x=>x.classList.remove('over'));it.style.transition='transform .25s';it.style.transform='';if(it.dataset.mv)drop(it,t||null)};
+  it.onpointerup=end;it.onpointercancel=end;
+  it.onclick=()=>{if(fb&&!it.dataset.lock&&!it.dataset.mv)pick(it)};
+ });
+ targets.forEach(t=>t.onclick=()=>{if(fb&&sel){const i=sel;pick(null);drop(i,t)}});
+}
+function showFb(){const w=A.querySelector('#fbw');if(!w||fb)return;w.innerHTML=`<button class="go" id="fbb">${bi('Try click-and-click','Coba klik-klik')}</button>`;A.querySelector('#fbb').onclick=()=>{fb=1;w.innerHTML='';msg('Click the item, then click where it goes.','Klik benda itu, lalu klik tempat tujuannya.',1)}}
+
+
+/* menu */
+function home(){
+ if(!me)return start();
+ window.onkeydown=null;window.onkeyup=null;save();
+ const TT=['Kind or Unkind?','Respectful or Disrespectful?','Find the Words','STOP – THINK – CHECK – SEND','Send, Change, or Ask for Help?','Make It Kind'];
+ const M=[['🙂',m1],['⚖️',m2],['🔍',m3],['🚦',m4],['📨',m5],['✨',m6]];
+ A.innerHTML=`<h1>${bi('Hello, '+esc(me.nama)+'!','Halo, '+esc(me.nama)+'!')}</h1><p class="sub">${bi('Choose a mission. Start from Mission 1 to 6.','Pilih satu misi. Kerjakan dari Misi 1 sampai 6.')}</p><div class="menu"></div><button class="mb wide" id="xt"><span>📝</span><b>Exit Ticket &amp; Reflection</b>${et?'<em>✅</em>':''}</button><p style="text-align:center;margin-top:18px"><button class="back" onclick="gantiSiswa()">Ganti siswa</button> <button class="back" onclick="teacher()">Untuk guru</button></p>`;
+ const m=A.querySelector('.menu');
+ M.forEach((x,i)=>{const b=$(`<button class="mb"><span>${x[0]}</span><b>Mission ${i+1}</b><small>${TT[i]}</small>${done[i]?'<em>✅</em>':''}</button>`);b.onclick=()=>{cur=i;ms[i]={s:0,x:0};recalc();x[1](i)};m.append(b)});
+ A.querySelector('#xt').onclick=exitTicket;
+ if(Object.keys(done).length>=6)m.before($(`<div class="card fp" style="margin-bottom:14px"><div class="big">🏆</div><h2>${bi('You are a Respectful Communicator! ⭐ '+stars+'/'+MAX,'Kamu Komunikator yang Santun!')}</h2></div>`));
+}
+function finish(i,text){done[i]=1;add(2);ok();save();window.onkeydown=null;window.onkeyup=null;
+ const all=Object.keys(done).length>=6;
+ A.innerHTML=`<div class="card"><div class="big">${all?'🏆':'🎉'}</div><h2>${all?bi('You are a Respectful Communicator, '+esc(me.nama)+'!','Kamu Komunikator yang Santun, '+esc(me.nama)+'!'):bi('Great job!','Hebat!')}</h2><p>${text}</p>${all?`<p><b>${bi('Final score: ⭐ '+stars+' / '+MAX,'Skor akhir')}</b></p>`:''}<button class="go" onclick="home()">${bi('Back to menu','Kembali ke menu')}</button></div>`}
+
+function runRounds(i,rs,fin){let n=0;const go=()=>{if(n>=rs.length){window.onkeydown=null;window.onkeyup=null;return finish(i,fin)}rs[n++](go)};go()}
+/* pertanyaan pilihan (dua kesempatan) */
+function ask(o,next){
+ let lock=0,wrong=0;const bm={};
+ A.innerHTML=`${hdr(o.title)}<h2>${o.q}</h2>${o.pic||''}<div class="opts${o.row?' row':''}${o.three?' three':''}"></div><p id="msg" class="msg"></p>`;
+ const ops=A.querySelector('.opts');
+ (o.order||(o.fixed?o.opts.map((x,i)=>i):shuffle(o.opts.map((x,i)=>i)))).forEach(i=>{const x=o.opts[i];const b=$(`<button class="${o.cls||''}">${x[1]}</button>`);bm[x[0]]=b;
+  b.onclick=()=>{if(lock||b.disabled)return;if(o.first&&!o._f){o._f=1;o.first(x[0])}
+   if(x[0]===o.ok){lock=1;ok();add();b.classList.add('ok');msg('Correct! '+o.why[0],'Benar! '+o.why[1],1);setTimeout(next,2500);return}
+   no();wrong++;lock=1;b.classList.add('dim');b.disabled=true;ops.classList.add('lk');shake(b);
+   if(wrong>=2){bm[o.ok].classList.add('ok');msg('The answer is highlighted. '+o.why[0],'Jawabannya ditandai. '+o.why[1],1);setTimeout(next,3300)}
+   else{msg(o.hint[0],o.hint[1]);setTimeout(()=>{lock=0;ops.classList.remove('lk')},1600)}};
+  ops.append(b)})}
+
+
+/* posisi jawaban benar diseimbangkan (tidak condong ke satu sisi) */
+const balPos=(n,len)=>{const a=[];for(let k=0;k<n;k++)a.push(k%len);return shuffle(a)};
+const ordered=R=>{const g={};R.forEach((r,k)=>{(g[r.opts.length]=g[r.opts.length]||[]).push(k)});const pos={};
+ Object.keys(g).forEach(L=>{const ps=balPos(g[L].length,+L);g[L].forEach((k,j)=>{pos[k]=ps[j]})});
+ return R.map((r,k)=>{const c=r.opts.findIndex(x=>x[0]===r.ok);const rest=shuffle(r.opts.map((x,i)=>i).filter(i=>i!==c));rest.splice(pos[k],0,c);return {...r,order:rest}})};
+
+/* ===== Misi 1: Kind or Unkind? ===== */
+function m1(i){
+ const T='Mission 1 · Kind or Unkind?';
+ const big=(t,id)=>`<div class="msgbox" style="font-size:22px;text-align:center">${bi(esc(t),esc(id))}</div>`;
+ const two=(a,b)=>`<div class="msgbox"><b>${bi('Message A','Pesan A')}</b><br>${bi('“'+esc(a[0])+'”','“'+esc(a[1])+'”')}</div><div class="msgbox"><b>${bi('Message B','Pesan B')}</b><br>${bi('“'+esc(b[0])+'”','“'+esc(b[1])+'”')}</div>`;
+ const AB=[['a',bi('Message A','Pesan A')],['b',bi('Message B','Pesan B')]];
+ const K1=['Hi, can you please help me with this? Thank you!','Hai, bisakah kamu tolong aku? Terima kasih!'],U1=['Give me the answer!','Berikan jawabannya padaku!'];
+ const R=[
+  {pic:two(K1,U1),q:bi('Which message sounds kind?','Pesan mana yang terdengar baik?'),opts:AB,ok:'a',row:1,why:['Message A uses kind words like “please” and “thank you”.','Pesan A memakai kata yang baik seperti “please” dan “thank you”.'],hint:['Listen to the words. Which message sounds friendly?','Dengarkan kata-katanya. Pesan mana yang terdengar ramah?']},
+  {pic:big(U1[0],U1[1]),q:bi('How might the person who gets this message feel?','Bagaimana perasaan orang yang menerima pesan ini?'),opts:[['a',bi('😊 Happy','😊 Senang')],['b',bi('😢 Sad or upset','😢 Sedih atau kesal')],['c',bi('😴 Sleepy','😴 Mengantuk')]],ok:'b',why:['Unkind words can make people feel sad or upset.','Kata yang kurang baik bisa membuat orang sedih atau kesal.'],hint:['Think: how would you feel if you got this message?','Pikirkan: bagaimana perasaanmu kalau menerima pesan ini?']},
+  {pic:big(K1[0],K1[1]),q:bi('Which words make this message sound kind?','Kata apa yang membuat pesan ini terdengar baik?'),opts:[['a',bi('“please” and “thank you”','“please” dan “thank you”')],['b',bi('“help”','“help”')],['c',bi('“this”','“this”')]],ok:'a',why:['“Please” and “thank you” are kind and polite words.','“Please” dan “thank you” adalah kata yang baik dan sopan.'],hint:['Which words do we use when we ask nicely and say thanks?','Kata apa yang kita pakai saat meminta dengan baik dan berterima kasih?']},
+  {pic:two(['Can you share your pencil with me, please?','Bisakah kamu berbagi pensilmu denganku, tolong?'],['Pencil. Now.','Pensil. Sekarang.']),q:bi('Which message would you prefer to receive?','Pesan mana yang lebih kamu sukai untuk diterima?'),opts:AB,ok:'a',row:1,why:['Most people prefer kind and polite messages.','Kebanyakan orang lebih suka pesan yang baik dan sopan.'],hint:['Think: which message makes you feel good?','Pikirkan: pesan mana yang membuatmu merasa nyaman?']},
+  {q:bi('A digital message has no face or voice. Why are the words we choose so important?','Pesan digital tidak punya wajah atau suara. Mengapa kata yang kita pilih sangat penting?'),opts:[['a',bi('The words show how we feel and can change how others feel.','Kata-kata menunjukkan perasaan kita dan bisa mengubah perasaan orang lain.')],['b',bi('Nobody reads the words.','Tidak ada yang membaca kata-katanya.')],['c',bi('Only pictures matter.','Hanya gambar yang penting.')]],ok:'a',why:['In a message, the words are all the other person can see.','Dalam pesan, kata-kata adalah satu-satunya yang bisa dilihat orang lain.'],hint:['Think: what does the other person read?','Pikirkan: apa yang dibaca orang lain?']}];
+ runRounds(i,ordered(R).map((r,k)=>nx=>ask({...r,title:T+' ('+(k+1)+'/'+R.length+')'},nx)),bi('You can tell kind and unkind messages apart!','Kamu bisa membedakan pesan yang baik dan kurang baik!'))}
+
+/* ===== Misi 2: Respectful or Disrespectful? ===== */
+function m2(i){
+ const T='Mission 2 · Respectful or Disrespectful?';
+ const RD=[['r',bi('Respectful','Sopan')],['d',bi('Disrespectful','Tidak sopan')]];
+ const card=(ic,t,ex)=>`<div class="msgbox" style="text-align:center"><div style="font-size:42px">${ic}</div><div style="font-size:22px;font-weight:700">${bi(esc(t[0]),esc(t[1]))}</div>${ex?`<div style="margin-top:8px">${bi(esc(ex[0]),esc(ex[1]))}</div>`:''}</div>`;
+ const C=[
+  ['🙏',['Saying please and thank you','Mengucapkan tolong dan terima kasih'],['“Please help me. Thank you!”','“Tolong bantu aku. Terima kasih!”'],'r',['Please and thank you show respect.','Tolong dan terima kasih menunjukkan rasa hormat.']],
+  ['😊',['Using someone’s name politely','Menyebut nama seseorang dengan sopan'],['“Hello, Mrs. Rina. May I ask a question?”','“Halo, Bu Rina. Boleh saya bertanya?”'],'r',['Using a name politely shows we care about the person.','Menyebut nama dengan sopan menunjukkan kita peduli pada orang itu.']],
+  ['😡',['Typing an angry message','Mengetik pesan yang marah'],['“I HATE YOU! GO AWAY!!!”','“AKU BENCI KAMU! PERGI!!!”'],'d',['Angry words can hurt other people’s feelings.','Kata-kata marah bisa melukai perasaan orang lain.']],
+  ['🚫',['Using rude words','Memakai kata-kata kasar'],['“You are so stupid.”','“Kamu bodoh sekali.”'],'d',['Rude words are unkind and hurt feelings.','Kata kasar itu tidak baik dan melukai perasaan.']],
+  ['⚡',['Sending a message without thinking','Mengirim pesan tanpa berpikir'],null,'d',['We should stop and think before we send a message.','Kita harus berhenti dan berpikir sebelum mengirim pesan.']],
+  ['🤝',['Asking for help politely','Meminta tolong dengan sopan'],['“Could you please help me with my project?”','“Bisakah kamu tolong aku dengan proyekku?”'],'r',['Asking politely is kind and respectful.','Meminta dengan sopan itu baik dan menghormati.']],
+  ['🔒',['Sharing someone’s information without permission','Membagikan informasi seseorang tanpa izin'],['Sharing a friend’s phone number with other people.','Membagikan nomor telepon temanmu kepada orang lain.'],'d',['Other people’s information is private. We must ask permission first.','Informasi orang lain itu pribadi. Kita harus meminta izin dulu.']]];
+ const R=C.map(c=>({pic:card(c[0],c[1],c[2]),q:bi('Is this respectful or disrespectful?','Apakah ini sopan atau tidak sopan?'),opts:RD,ok:c[3],row:1,why:c[4],hint:['Think: would this make the other person feel good or bad?','Pikirkan: apakah ini membuat orang lain merasa baik atau buruk?']}));
+ const explain=nx=>{
+  const c=C[2];let lock=0;
+  A.innerHTML=`${hdr(T+' · Explain your answer')}<h2>${bi('Now explain your answer. Write it in your own words.','Sekarang jelaskan jawabanmu. Tulis dengan kata-katamu sendiri.')}</h2>${card(c[0],c[1],c[2])}<p class="fing">${bi('First, choose.','Pertama, pilih.')}</p><div class="opts row" id="ro"></div><div id="ex" style="display:none"><div class="sent">${bi('I think this message is <b>disrespectful</b> because…','Menurutku pesan ini <b>tidak sopan</b> karena…')}</div><input class="ti" id="ti" maxlength="120" autocomplete="off"><p class="intro">${bi('Ideas you can write about: it hurts feelings, it uses unkind words, it is not kind to the other person.','Ide yang bisa kamu tulis: melukai perasaan, memakai kata yang tidak baik, tidak baik pada orang lain.')}</p><button class="go" id="dn" disabled>${bi('Done','Selesai')}</button></div><p id="msg" class="msg"></p>`;
+  const ro=A.querySelector('#ro'),ex=A.querySelector('#ex'),ti=A.querySelector('#ti'),dn=A.querySelector('#dn');
+  const words=t=>t.trim().split(/\s+/).filter(Boolean).length;
+  RD.forEach(x=>{const b=$(`<button>${x[1]}</button>`);
+   b.onclick=()=>{if(lock||b.disabled)return;
+    if(x[0]==='d'){lock=1;ok();b.classList.add('ok');ro.classList.add('lk');ex.style.display='block';msg('Correct! Now write why.','Benar! Sekarang tulis alasannya.',1);ti.focus()}
+    else{no();b.classList.add('dim');b.disabled=true;msg('Not quite. Think: does this message make the other person feel good?','Belum tepat. Pikirkan: apakah pesan ini membuat orang lain merasa baik?')}};
+   ro.append(b)});
+  ti.oninput=()=>{dn.disabled=words(ti.value)<3};
+  ti.onkeydown=e=>{if(e.key==='Enter'&&!dn.disabled)dn.onclick()};
+  dn.onclick=()=>{xr=ti.value.trim();ok();nx()}};
+ runRounds(i,[...ordered(R).map((r,k)=>nx=>ask({...r,title:T+' ('+(k+1)+'/'+R.length+')'},nx)),explain],bi('You can sort respectful and disrespectful messages!','Kamu bisa memilah pesan yang sopan dan tidak sopan!'))}
+
+/* ===== Misi 3: Find the Words ===== */
+function m3(i){
+ const T='Mission 3 · Find the Words';
+ const MS=[
+  [['Hi Dina,','Hai Dina,',0],['Give me your pencil now!','Berikan pensilmu sekarang!',1],['You are so slow.','Kamu lambat sekali.',1],['See you later.','Sampai nanti.',0]],
+  [['Hello, Budi!','Halo, Budi!',0],['Your drawing is ugly.','Gambarmu jelek.',1],['Can you please help me with my homework?','Bisakah kamu tolong aku mengerjakan PR?',0]],
+  [['Dear Ms. Lina,','Yth. Bu Lina,',0],['Where is my grade? Tell me now!','Mana nilaiku? Beri tahu sekarang!',1],['Thank you.','Terima kasih.',0]]];
+ const round=(m,k)=>nx=>{
+  let tries=0,lock=0;const sel=new Set();
+  A.innerHTML=`${hdr(T+' ('+(k+1)+'/'+MS.length+')')}<h2>${bi('Tap the unkind parts of this message.','Ketuk bagian pesan yang kurang baik.')}</h2><div class="segs" id="sg"></div><p id="msg" class="msg"></p><button class="go" id="ck" disabled>${bi('Check','Periksa')}</button>`;
+  const sg=A.querySelector('#sg'),ck=A.querySelector('#ck'),bs=[];
+  m.forEach((p,j)=>{const b=$(`<button class="seg">${bi(esc(p[0]),esc(p[1]))}</button>`);bs.push(b);
+   b.onclick=()=>{if(lock)return;sel.has(j)?sel.delete(j):sel.add(j);b.classList.toggle('on',sel.has(j));ck.disabled=!sel.size};sg.append(b)});
+  const right=()=>m.every((p,j)=>!!p[2]===sel.has(j));
+  const reveal=()=>bs.forEach((b,j)=>{b.classList.remove('on');if(m[j][2])b.classList.add('good')});
+  ck.onclick=()=>{if(lock)return;
+   if(right()){lock=1;ok();add();reveal();msg('Correct! Unkind words can hurt feelings.','Benar! Kata yang kurang baik bisa melukai perasaan.',1);setTimeout(nx,2600)}
+   else{no();tries++;shake(sg);
+    if(tries>=2){lock=1;reveal();msg('The unkind parts are highlighted. Let us keep going!','Bagian yang kurang baik sudah ditandai. Ayo lanjut!',1);setTimeout(nx,3400)}
+    else msg('Not quite. Which parts could hurt someone’s feelings?','Belum tepat. Bagian mana yang bisa melukai perasaan?')}}};
+ runRounds(i,MS.map(round),bi('You can find unkind words in a message!','Kamu bisa menemukan kata yang kurang baik dalam pesan!'))}
+
+/* ===== Misi 4: STOP - THINK - CHECK - SEND ===== */
+function m4(i){
+ const T='Mission 4 · STOP – THINK – CHECK – SEND';
+ const ST=[['STOP','BERHENTI','Pause before sending.','Berhenti sebentar sebelum mengirim.'],['THINK','PIKIR','Is it kind and appropriate?','Apakah pesannya baik dan pantas?'],['CHECK','PERIKSA','Is the message clear? Did I check the words?','Apakah pesannya jelas? Sudah kuperiksa kata-katanya?'],['SEND','KIRIM','Send only when you are sure it is appropriate.','Kirim hanya saat kamu yakin pesannya pantas.']];
+ const stepHTML=s=>bi('<b>'+s[0]+'</b> – '+s[2],'<b>'+s[1]+'</b> – '+s[3]);
+ const partA=nx=>{
+  const cards=shuffle(ST.map((t,k)=>k));let placed=0;const wrong={};
+  A.innerHTML=`${hdr(T+' · Put the steps in order')}<h2>${bi('Before you send a message, what do you do? Drag each step to its place.','Sebelum mengirim pesan, apa yang kamu lakukan? Seret tiap langkah ke tempatnya.')}</h2><div class="slots" id="sl"></div><div class="cards" id="cd"></div><p id="msg" class="msg"></p><p id="fbw"></p>`;
+  const sl=A.querySelector('#sl'),cd=A.querySelector('#cd');
+  ST.forEach((_,k)=>sl.append($(`<div class="tgt slot2" data-k="${k}"><span class="num">${k+1}</span></div>`)));
+  cards.forEach(k=>cd.append($(`<div class="pc msgc" data-k="${k}">${stepHTML(ST[k])}</div>`)));
+  const items=[...cd.children],targets=[...sl.children];let miss=0;
+  const place=(it,t,self)=>{if(self){ok();add();msg('Correct!','Benar!',1)}it.dataset.lock=1;it.classList.remove('sel');t.append(it);t.classList.add('full');
+   if(++placed>=ST.length)setTimeout(nx,1300)};
+  dnd(items,targets,(it,t)=>{
+   const k=it.dataset.k;
+   if(!t){dropOut++;miss++;snd(180,.2);msg('Let go on top of a numbered box.','Lepaskan di atas salah satu kotak bernomor.');if(miss>=3)showFb();return}
+   if(t.classList.contains('full')){msg('That place is full. Try another one.','Tempat itu sudah terisi. Coba tempat lain.');return}
+   if(t.dataset.k===k)place(it,t,true);
+   else{no();wrong[k]=(wrong[k]||0)+1;shake(it);
+    if(wrong[k]>=2){msg('This is where it goes. Let us keep going!','Ini tempatnya. Ayo lanjut!');place(it,targets.find(x=>x.dataset.k===k),false)}
+    else msg('Not quite. Think: what do we do first, second, third, and last?','Belum tepat. Pikirkan: apa yang pertama, kedua, ketiga, dan terakhir?')}});
+  if(fb)msg('Click-and-click is on: click a card, then click its place.','Klik-klik aktif: klik kartu, lalu klik tempatnya.',1)};
+ const opts=ST.map((s,k)=>[String(k),bi(s[0],s[1])]);
+ const Q=[
+  {q:bi('Which step asks: “Is it kind and appropriate?”','Langkah mana yang bertanya: “Apakah pesannya baik dan pantas?”'),ok:'1',why:['THINK: we ask if the message is kind and appropriate.','PIKIR: kita bertanya apakah pesannya baik dan pantas.'],hint:['Which step uses your brain?','Langkah mana yang memakai pikiranmu?']},
+  {q:bi('Which step means: “Pause before sending”?','Langkah mana yang artinya: “Berhenti sebentar sebelum mengirim”?'),ok:'0',why:['STOP: we pause before we send.','BERHENTI: kita berhenti sebentar sebelum mengirim.'],hint:['What do we do first?','Apa yang kita lakukan pertama?']},
+  {q:bi('Which step is for checking that the message is clear and the words are right?','Langkah mana untuk memeriksa pesan sudah jelas dan kata-katanya benar?'),ok:'2',why:['CHECK: we read the message again and check the words.','PERIKSA: kita membaca pesan lagi dan memeriksa kata-katanya.'],hint:['Which step is about looking again?','Langkah mana yang artinya melihat lagi?']}];
+ runRounds(i,[partA,...Q.map((q,k)=>nx=>ask({...q,opts,fixed:1,title:T+' · Which step? ('+(k+1)+'/'+Q.length+')'},nx))],bi('You know how to stop and think before you send!','Kamu tahu cara berhenti dan berpikir sebelum mengirim!'))}
+
+/* ===== Misi 5: Send, Change, or Ask for Help? ===== */
+function m5(i){
+ const T='Mission 5 · Send, Change, or Ask for Help?';
+ sch=[];
+ const SCH=[['s',bi('✅ Send','✅ Kirim')],['c',bi('✏️ Change it','✏️ Ubah dulu')],['h',bi('🙋 Ask for help','🙋 Minta bantuan')]];
+ const big=(t,id)=>`<div class="msgbox" style="font-size:20px">${bi(esc(t),esc(id))}</div>`;
+ const S=[
+  ['You are upset with a friend. You typed: “You are the worst! I hate you!” Your finger is on “Send”.','Kamu kesal pada temanmu. Kamu mengetik: “Kamu yang terburuk! Aku benci kamu!” Jarimu sudah di tombol “Send”.','c',['Stop and change the angry words before you send.','Berhenti dan ubah kata-kata marah itu sebelum mengirim.']],
+  ['You typed: “Hi Nina, can you please help me with my math homework? Thank you!” You read it and checked the words.','Kamu mengetik: “Hai Nina, bisakah kamu tolong aku mengerjakan PR matematika? Terima kasih!” Kamu sudah membaca dan memeriksanya.','s',['It is kind and clear. It is okay to send.','Pesannya baik dan jelas. Boleh dikirim.']],
+  ['A friend shows you a classmate’s home address and says, “Send it to everyone!” You are not sure what to do.','Temanmu menunjukkan alamat rumah teman sekelas dan berkata, “Kirim ke semua orang!” Kamu tidak yakin harus berbuat apa.','h',['Other people’s information is private. Ask an adult for help.','Informasi orang lain itu pribadi. Minta bantuan orang dewasa.']],
+  ['You typed: “Hi Budi, can u hlp me?” You see spelling mistakes and the message is not clear.','Kamu mengetik: “Hi Budi, can u hlp me?” Ada salah ketik dan pesannya tidak jelas.','c',['CHECK: fix the words so the message is clear, then send.','PERIKSA: perbaiki kata-katanya supaya jelas, lalu kirim.']],
+  ['Someone sends you an unkind message and you do not know what to do.','Seseorang mengirimmu pesan yang kurang baik dan kamu tidak tahu harus berbuat apa.','h',['When you are unsure, ask an adult for help.','Saat kamu ragu, minta bantuan orang dewasa.']],
+  ['You wrote: “Thank you for the gift, Grandma!” You checked it and it is kind.','Kamu menulis: “Terima kasih untuk hadiahnya, Nenek!” Kamu sudah memeriksanya dan pesannya baik.','s',['It is kind and checked. You can send it.','Pesannya baik dan sudah diperiksa. Kamu boleh mengirimnya.']]];
+ runRounds(i,S.map((s,k)=>nx=>ask({title:T+' ('+(k+1)+'/'+S.length+')',pic:big(s[0],s[1]),q:bi('What should you do?','Apa yang sebaiknya kamu lakukan?'),opts:SCH,ok:s[2],cls:'',fixed:1,three:1,why:s[3],hint:['Use STOP – THINK – CHECK – SEND. Is it kind? Is it clear? Are you sure?','Pakai STOP – THINK – CHECK – SEND. Apakah baik? Apakah jelas? Apakah kamu yakin?'],first:v=>{sch[k]=v.toUpperCase()}},nx)),bi('You know when to send, change, or ask for help!','Kamu tahu kapan harus mengirim, mengubah, atau meminta bantuan!'))}
+
+/* ===== Misi 6: Make It Kind ===== */
+function m6(i){
+ const T='Mission 6 · Make It Kind';
+ const big=(t,id)=>`<div class="msgbox" style="font-size:22px;text-align:center">${bi(esc(t),esc(id))}</div>`;
+ const K=[
+  [['Give me the answer!','Berikan jawabannya padaku!'],['Can you please tell me the answer?','Bisakah kamu tolong beri tahu aku jawabannya?'],['Tell me the answer now.','Beri tahu aku jawabannya sekarang.'],['Answer me!','Jawab aku!']],
+  [['Your idea is stupid.','Idemu bodoh.'],['I have a different idea. Can I share it?','Aku punya ide yang berbeda. Boleh aku bagikan?'],['That idea is silly.','Ide itu konyol.'],['I do not like your idea at all.','Aku sama sekali tidak suka idemu.']],
+  [['Move! I want the computer.','Minggir! Aku mau komputernya.'],['Excuse me, may I use the computer after you, please?','Permisi, boleh aku pakai komputernya setelah kamu, tolong?'],['Hurry up and move.','Cepat dan minggir.'],['I want the computer now.','Aku mau komputernya sekarang.']],
+  [['I HATE this group!','Aku BENCI kelompok ini!'],['I feel upset. Can we talk about it?','Aku merasa kesal. Bisakah kita bicarakan?'],['This group is the worst.','Kelompok ini yang terburuk.'],['Nobody listens to me!','Tidak ada yang mendengarkan aku!']],
+  [['Send me your homework.','Kirim PR-mu padaku.'],['Could you please share your homework with me? Thank you.','Bisakah kamu tolong bagikan PR-mu padaku? Terima kasih.'],['Send it now.','Kirim sekarang.'],['Give me your homework!','Berikan PR-mu padaku!']]];
+ K[1][3][1]='Aku sama sekali tidak suka idemu.';
+ const R=K.map(k=>({pic:big(k[0][0],k[0][1]),q:bi('Choose the kind way to say it.','Pilih cara yang baik untuk mengatakannya.'),opts:[['a',bi(esc(k[1][0]),esc(k[1][1]))],['b',bi(esc(k[2][0]),esc(k[2][1]))],['c',bi(esc(k[3][0]),esc(k[3][1]))]],ok:'a',cls:'msgo',why:['This one uses kind and polite words.','Kalimat ini memakai kata yang baik dan sopan.'],hint:['Which one uses polite words like “please” or asks nicely?','Mana yang memakai kata sopan seperti “please” atau meminta dengan baik?']}));
+ runRounds(i,ordered(R).map((r,k)=>nx=>ask({...r,title:T+' ('+(k+1)+'/'+R.length+')'},nx)),bi('You can change unkind words into kind words!','Kamu bisa mengubah kata yang kurang baik menjadi kata yang baik!'))}
+
+/* ===== Exit Ticket & Reflection ===== */
+function exitTicket(){
+ let mi=null,rs=[],tries=0,tb='',tw='';
+ const N='Exit Ticket &amp; Reflection';
+ const bl=t=>t?`<span class="blank f">${t}</span>`:'<span class="blank">&nbsp;</span>';
+ const intro=`<p class="intro">${bi('No stars here. This shows what you learned.','Di sini tidak ada bintang. Ini untuk menunjukkan apa yang kamu pelajari.')}</p>`;
+ const words=t=>t.trim().split(/\s+/).filter(Boolean).length;
+ const s1=()=>{
+  A.innerHTML=`${hdr(N+' (1/4)')}${intro}<div class="sent">${bi(`Respectful digital communication means ${bl('')}.`,`Komunikasi digital yang santun artinya ${bl('')}.`)}</div><h2>${bi('Choose the best ending.','Pilih akhir kalimat yang paling tepat.')}</h2><div class="opts"></div><p id="msg" class="msg"></p>`;
+  const o=A.querySelector('.opts');let lock=0;
+  shuffle(MEANS.map((m,k)=>k)).forEach(k=>{const b=$(`<button>${bi(MEANS[k][0],MEANS[k][1])}</button>`);
+   b.onclick=()=>{if(lock||b.disabled)return;
+    if(MEANS[k][2]){lock=1;mi=k;b.classList.add('ok');A.querySelector('.sent').innerHTML=bi(`Respectful digital communication means ${bl(MEANS[k][0])}.`,`Komunikasi digital yang santun artinya ${bl(MEANS[k][1])}.`);ok();setTimeout(s2,1500)}
+    else{tries++;snd(180,.2);b.classList.add('dim');b.disabled=true;msg('Not quite. Think about kind words and other people.','Belum tepat. Pikirkan kata yang baik dan orang lain.')}};
+   o.append(b)})};
+ const s2=()=>{
+  rs=[];
+  A.innerHTML=`${hdr(N+' (2/4)')}${intro}<h2>${bi('Choose the three rules you think are most important.','Pilih tiga aturan yang menurutmu paling penting.')}</h2><div class="opts"></div><p id="msg" class="msg"></p><button class="go" id="dn" disabled>${bi('Done','Selesai')}</button>`;
+  const o=A.querySelector('.opts'),dn=A.querySelector('#dn'),bs=[];
+  const upd=()=>{bs.forEach((b,k)=>b.classList.toggle('ok',rs.includes(k)));dn.disabled=rs.length!==3};
+  RULES.forEach((r,k)=>{const b=$(`<button>☐ ${bi(r[0],r[1])}</button>`);bs.push(b);
+   b.onclick=()=>{const j=rs.indexOf(k);if(j>=0)rs.splice(j,1);else if(rs.length<3)rs.push(k);else msg('You can choose three. Tap one to take it off.','Kamu boleh memilih tiga. Ketuk satu untuk melepasnya.');upd()};o.append(b)});
+  dn.onclick=()=>{ok();s3()}};
+ const typed=(idx,title,starter,chips,get,set,next,min)=>{
+  A.innerHTML=`${hdr(N+' ('+idx+'/4)')}${intro}<h2>${title}</h2><div class="sent">${starter}</div><input class="ti" id="ti" maxlength="120" autocomplete="off" value="${esc(get())}"><p class="intro">${bi('Write it in your own words. Ideas you can write about: '+chips.map(c=>c[0]).join('; ')+'.','Tulis dengan kata-katamu sendiri. Ide yang bisa kamu tulis: '+chips.map(c=>c[1]).join('; ')+'.')}</p><p id="msg" class="msg"></p><button class="go" id="dn" disabled>${bi('Next','Lanjut')}</button>`;
+  const ti=A.querySelector('#ti'),dn=A.querySelector('#dn');
+  const upd=()=>{dn.disabled=words(ti.value)<min};
+  ti.oninput=upd;ti.onkeydown=e=>{if(e.key==='Enter'&&!dn.disabled)dn.onclick()};
+  dn.onclick=()=>{set(ti.value.trim());ok();next()};upd();ti.focus()};
+ const s3=()=>typed(3,bi('Finish the sentence.','Lengkapi kalimatnya.'),bi('Before I send a digital message, I should…','Sebelum aku mengirim pesan digital, aku sebaiknya…'),[['stop and think','berhenti dan berpikir'],['check my words','memeriksa kata-kataku'],['ask an adult if I am unsure','bertanya pada orang dewasa jika ragu']],()=>tb,v=>{tb=v},s4,3);
+ const s4=()=>typed(4,bi('Finish the sentence.','Lengkapi kalimatnya.'),bi('Respectful communication is important because…','Komunikasi yang santun itu penting karena…'),[['it makes people feel good','membuat orang merasa nyaman'],['it shows respect','menunjukkan rasa hormat'],['words can hurt feelings','kata-kata bisa melukai perasaan']],()=>tw,v=>{tw=v},fin,4);
+ const fin=()=>{
+  et={m:mi,r:rs.slice(),b:tb,w:tw,x:tries,done:1};save();
+  A.innerHTML=`<div class="card"><div class="big">📝</div><h2>${bi('My Exit Ticket','Tiket Keluarku')}</h2><div class="sent">${bi(`Respectful digital communication means <b>${MEANS[mi][0]}</b>.`,`Komunikasi digital yang santun artinya <b>${MEANS[mi][1]}</b>.`)}</div><div class="sent">${bi('My three important rules: <b>'+rs.map(k=>RULES[k][0]).join(' ')+'</b>','Tiga aturan pentingku: <b>'+rs.map(k=>RULES[k][1]).join(' ')+'</b>')}</div><div class="sent">${bi('Before I send a digital message, I should <b>'+esc(tb)+'</b>.','Sebelum aku mengirim pesan digital, aku sebaiknya <b>'+esc(tb)+'</b>.')}</div><div class="sent">${bi('Respectful communication is important because <b>'+esc(tw)+'</b>.','Komunikasi yang santun itu penting karena <b>'+esc(tw)+'</b>.')}</div><p>${bi('Ready to share? Read your sentences to the class!','Siap berbagi? Bacakan kalimatmu di depan kelas!')}</p><button class="go" onclick="home()">${bi('Back to menu','Kembali ke menu')}</button></div>`};
+ s1()}
+start();
+</script></body></html>
